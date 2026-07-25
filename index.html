@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PulseRed | Blood Search & Donor Management Dashboard</title>
+    <meta name="description" content="Real-time emergency blood search, donor matching network, ABO compatibility engine, Google OAuth 2.0 authentication, WebSocket live donor chat, Google Forms live sync, and client-side caching engine.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- RemixIcon for crisp SVG Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Google Identity Services SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Background Glow Elements -->
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="ri-drop-fill"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>Pulse<span>Red</span></h2>
+                    <span class="sub-brand">Emergency Blood Network</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#dashboard" class="nav-link active" data-tab="dashboard">
+                    <i class="ri-dashboard-3-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#my-blood-details" class="nav-link text-crimson" id="nav-my-blood-link">
+                    <i class="ri-heart-add-fill text-crimson"></i>
+                    <span style="font-weight: 700; color: #fff;">My Blood Details</span>
+                    <span class="badge badge-pill tag-danger" style="font-size: 0.68rem; padding: 0.15rem 0.4rem;">DONOR PROFILE</span>
+                </a>
+                <a href="#google-form-sync" class="nav-link" data-tab="google-form-sync">
+                    <i class="ri-google-fill text-amber"></i>
+                    <span>Google Form Sync</span>
+                    <span class="badge badge-pill tag-success" style="font-size: 0.68rem; padding: 0.15rem 0.4rem;">LIVE SYNC</span>
+                </a>
+                <a href="#user-id-sort" class="nav-link" data-tab="user-id-sort">
+                    <i class="ri-shield-user-line"></i>
+                    <span>User ID Blood Sort</span>
+                </a>
+                <a href="#location-finder" class="nav-link" data-tab="location-finder">
+                    <i class="ri-map-pin-user-line"></i>
+                    <span>Location Blood Stock</span>
+                </a>
+                <a href="#donors" class="nav-link" data-tab="donors">
+                    <i class="ri-user-search-line"></i>
+                    <span>Find Donors</span>
+                    <span class="badge badge-pill" id="nav-donor-count">28</span>
+                </a>
+                <a href="#banks" class="nav-link" data-tab="banks">
+                    <i class="ri-hospital-line"></i>
+                    <span>Blood Banks</span>
+                </a>
+                <a href="#compatibility" class="nav-link" data-tab="compatibility">
+                    <i class="ri-git-merge-line"></i>
+                    <span>ABO Matrix</span>
+                </a>
+                <a href="#analytics" class="nav-link" data-tab="analytics">
+                    <i class="ri-bar-chart-box-line"></i>
+                    <span>Supply Radar</span>
+                </a>
+            </nav>
+
+            <div class="emergency-cta-box">
+                <div class="cta-pulse-icon">
+                    <i class="ri-alarm-warning-line"></i>
+                </div>
+                <h4>Need Blood Urgently?</h4>
+                <p>Post an immediate broadcast to compatible donors in your area.</p>
+                <button class="btn btn-danger btn-block btn-pulse" id="open-request-modal-sidebar">
+                    <i class="ri-add-circle-line"></i> Request Blood
+                </button>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-pill clickable-user-pill" id="sidebar-user-pill" title="Click to Switch User / View Blood Profile">
+                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=100&auto=format&fit=crop&q=80" alt="Active User" class="avatar" id="active-user-avatar">
+                    <div class="user-info">
+                        <span class="user-name" id="active-user-name">Dr. Sarah Jenkins</span>
+                        <span class="user-role" id="active-user-id-badge">ID: USR-ADMIN-01</span>
+                    </div>
+                    <i class="ri-heart-add-line text-crimson" style="margin-left: auto; font-size: 1.2rem;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 class="page-title" id="page-title">Blood Emergency Dashboard</h1>
+                    <p class="page-subtitle">Real-time donor locator, WebSocket live donor chat, Google OAuth & caching engine</p>
+                </div>
+
+                <div class="header-actions">
+                    <!-- MY BLOOD DETAILS BUTTON -->
+                    <button class="btn btn-danger" id="open-my-blood-modal-btn" style="background: linear-gradient(135deg, #FF2E4C, #D90429);">
+                        <i class="ri-drop-line"></i> Submit / Edit My Blood Details
+                    </button>
+
+                    <!-- GOOGLE OAUTH OFFICIAL BUTTON -->
+                    <button class="btn-google-oauth" id="google-oauth-header-btn">
+                        <svg class="google-logo-svg" width="18" height="18" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        <span id="google-btn-text">Continue with Google</span>
+                    </button>
+
+                    <!-- CACHE STATUS INDICATOR PILL -->
+                    <div class="cache-status-pill" id="cache-status-pill" title="Click to manage client-side cache & memory">
+                        <i class="ri-cpu-line text-green animated-pulse"></i>
+                        <div class="cache-text">
+                            <span class="cache-title">Cache: Active (<span id="cache-speed-text">0.1 ms</span>)</span>
+                            <span class="cache-sub" id="cache-size-text">Pre-cached • 14 KB</span>
+                        </div>
+                        <button class="btn-text" id="clear-cache-btn" title="Purge Cache & Reload" style="padding: 0 0.3rem;">
+                            <i class="ri-refresh-line"></i>
+                        </button>
+                    </div>
+
+                    <div class="location-selector">
+                        <i class="ri-map-pin-2-fill text-crimson"></i>
+                        <select id="city-selector" class="custom-select">
+                            <option value="all">All Metro Regions</option>
+                            <option value="Central Metro" selected>Central Metro (5 km)</option>
+                            <option value="North District">North District (12 km)</option>
+                            <option value="South Hub">South Hub (8 km)</option>
+                            <option value="East Coast">East Coast (18 km)</option>
+                            <option value="West Suburban">West Suburban (15 km)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-danger" id="open-request-modal-header">
+                        <i class="ri-alarm-warning-fill"></i> Post Emergency Request
+                    </button>
+                </div>
+            </header>
+
+            <!-- Quick Impact Live Stats Bar -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon icon-red">
+                        <i class="ri-heart-pulse-fill"></i>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-value" id="stat-lives-saved">1,482</span>
+                        <span class="stat-label">Lives Saved This Month</span>
+                    </div>
+                    <div class="stat-trend positive">
+                        <i class="ri-arrow-up-line"></i> +14.2%
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon icon-green">
+                        <i class="ri-user-heart-line"></i>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-value" id="stat-active-donors">342</span>
+                        <span class="stat-label">Available Donors Nearby</span>
+                    </div>
+                    <div class="stat-trend positive">
+                        <i class="ri-checkbox-circle-line"></i> Live On-Call
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon icon-amber">
+                        <i class="ri-flashlight-line"></i>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-value" id="stat-urgent-requests">7</span>
+                        <span class="stat-label">Active Urgent Requests</span>
+                    </div>
+                    <div class="stat-trend warning">
+                        <i class="ri-time-line"></i> High Priority
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon icon-blue">
+                        <i class="ri-speed-up-line"></i>
+                    </div>
+                    <div class="stat-data">
+                        <span class="stat-value" id="stat-match-time">14 min</span>
+                        <span class="stat-label">Avg Emergency Match Time</span>
+                    </div>
+                    <div class="stat-trend positive">
+                        <i class="ri-arrow-down-line"></i> -3 min vs avg
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dynamic Tab Content Sections -->
+            <div class="tab-contents">
+
+                <!-- MAIN DASHBOARD TAB -->
+                <section class="tab-pane active" id="tab-dashboard">
+                    <div class="dashboard-grid">
+                        
+                        <!-- Left Column: Search & Donor Cards (2/3 width) -->
+                        <div class="grid-column main-col">
+                            
+                            <!-- User Blood Profile Callout Banner -->
+                            <div class="user-id-quick-bar glass-panel" style="border-left: 4px solid var(--primary-crimson);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                        <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=100&auto=format&fit=crop&q=80" id="dash-banner-avatar" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--primary-crimson);">
+                                        <div>
+                                            <h4 style="font-family: var(--font-heading); font-size: 1.05rem;">
+                                                Logged In User: <span id="dash-banner-user-name">Dr. Sarah Jenkins</span> 
+                                                (<span id="dash-banner-user-id" style="color: var(--primary-crimson);">USR-ADMIN-01</span>)
+                                            </h4>
+                                            <span style="font-size: 0.8rem; color: var(--text-muted);">
+                                                Blood Group: <strong id="dash-banner-blood-type" style="color: var(--primary-crimson); font-size: 0.95rem;">O-</strong> • 
+                                                Status: <strong id="dash-banner-status" style="color: var(--color-success);">Verified Donor Ready</strong>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button class="btn btn-danger" onclick="openMyBloodDetailsModal()">
+                                            <i class="ri-heart-add-fill"></i> Update My Blood Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Blood Group Fast Filter Buttons & Sorting Panel -->
+                            <div class="glass-panel filter-panel">
+                                <div class="panel-header">
+                                    <div class="panel-title">
+                                        <i class="ri-filter-3-line"></i> Search & Sort Donors By Location
+                                    </div>
+                                    <div class="panel-actions">
+                                        <button class="btn-text" id="clear-filters">Reset Filters</button>
+                                        <span class="donor-count-tag"><strong id="filtered-count">0</strong> donors matched</span>
+                                    </div>
+                                </div>
+
+                                <div class="blood-type-pills" id="blood-type-filter">
+                                    <button class="blood-pill active" data-type="ALL">All Groups</button>
+                                    <button class="blood-pill" data-type="A+">A+</button>
+                                    <button class="blood-pill" data-type="A-">A-</button>
+                                    <button class="blood-pill" data-type="B+">B+</button>
+                                    <button class="blood-pill" data-type="B-">B-</button>
+                                    <button class="blood-pill" data-type="O+">O+</button>
+                                    <button class="blood-pill universal-donor-pill" data-type="O-">O- <span class="pill-badge">Universal</span></button>
+                                    <button class="blood-pill" data-type="AB+">AB+</button>
+                                    <button class="blood-pill" data-type="AB-">AB-</button>
+                                </div>
+
+                                <div class="secondary-filters">
+                                    <div class="search-input-wrap">
+                                        <i class="ri-search-2-line search-icon"></i>
+                                        <input type="text" id="donor-search-input" placeholder="Search by donor name, User ID, suburb, phone, or location...">
+                                    </div>
+
+                                    <div class="filter-controls">
+                                        <select id="sort-donors-by" class="custom-select-sm" title="Sort Donors">
+                                            <option value="distance">Sort by Nearest Distance</option>
+                                            <option value="donations">Sort by Most Donations</option>
+                                            <option value="readiness">Sort by Immediate Readiness</option>
+                                            <option value="name">Sort Alphabetically</option>
+                                        </select>
+
+                                        <select id="availability-filter" class="custom-select-sm">
+                                            <option value="all">Any Availability</option>
+                                            <option value="Immediate">Ready Now (Immediate)</option>
+                                            <option value="Today">Available Today</option>
+                                        </select>
+
+                                        <select id="max-distance-filter" class="custom-select-sm">
+                                            <option value="100">Any Distance</option>
+                                            <option value="5">Within 5 km</option>
+                                            <option value="10">Within 10 km</option>
+                                            <option value="20">Within 20 km</option>
+                                        </select>
+
+                                        <div class="view-toggle">
+                                            <button class="btn-toggle active" id="view-grid-btn" title="Grid View">
+                                                <i class="ri-grid-fill"></i>
+                                            </button>
+                                            <button class="btn-toggle" id="view-map-btn" title="Radar Map View">
+                                                <i class="ri-map-2-line"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- View Container: Donor Grid vs Mock Map -->
+                            <div class="view-container">
+                                <!-- Grid View -->
+                                <div class="donors-grid-view active" id="donors-grid">
+                                    <!-- Dynamic Donor Cards rendered by JS -->
+                                </div>
+
+                                <!-- Interactive Radar Map View -->
+                                <div class="map-view-container" id="map-view-panel">
+                                    <div class="glass-panel map-wrapper">
+                                        <div class="map-header">
+                                            <span><i class="ri-radar-line text-crimson animated-spin"></i> Live Metro Donor & Blood Center Radar</span>
+                                            <div class="map-legend">
+                                                <span class="legend-item"><span class="dot dot-donor"></span> Active Donor</span>
+                                                <span class="legend-item"><span class="dot dot-bank"></span> Blood Bank Hub</span>
+                                                <span class="legend-item"><span class="dot dot-urgent"></span> Urgent Request</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- SVG Interactive Visual Map Canvas -->
+                                        <div class="svg-map-canvas" id="svg-map">
+                                            <svg width="100%" height="420" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid meet">
+                                                <defs>
+                                                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                                                    </pattern>
+                                                    <radialGradient id="radarGlow" cx="50%" cy="50%" r="50%">
+                                                        <stop offset="0%" stop-color="rgba(255,46,76,0.15)" />
+                                                        <stop offset="100%" stop-color="rgba(255,46,76,0)" />
+                                                    </radialGradient>
+                                                </defs>
+                                                <rect width="800" height="420" fill="url(#grid)"/>
+
+                                                <!-- Radar scan circles -->
+                                                <circle cx="400" cy="210" r="190" fill="url(#radarGlow)" stroke="rgba(255,46,76,0.2)" stroke-width="1" stroke-dasharray="4 4"/>
+                                                <circle cx="400" cy="210" r="120" fill="none" stroke="rgba(255,46,76,0.15)" stroke-width="1"/>
+                                                <circle cx="400" cy="210" r="50" fill="none" stroke="rgba(255,46,76,0.25)" stroke-width="1"/>
+
+                                                <g id="map-nodes-layer"></g>
+                                            </svg>
+                                            <div class="map-tooltip" id="map-tooltip"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Right Column: Compatibility Matrix & Inventory & Stream (1/3 width) -->
+                        <div class="grid-column side-col">
+                            
+                            <!-- ABO Quick Compatibility Engine Widget -->
+                            <div class="glass-panel ABO-widget">
+                                <div class="panel-header">
+                                    <div class="panel-title">
+                                        <i class="ri-git-merge-line text-crimson"></i> Smart Compatibility Check
+                                    </div>
+                                </div>
+                                <div class="abo-selector-box">
+                                    <label for="abo-select">Select Patient Blood Group:</label>
+                                    <select id="abo-select" class="custom-select">
+                                        <option value="A+">A+ Positive</option>
+                                        <option value="A-">A- Negative</option>
+                                        <option value="B+">B+ Positive</option>
+                                        <option value="B-">B- Negative</option>
+                                        <option value="O+">O+ Positive</option>
+                                        <option value="O-" selected>O- Negative (Universal)</option>
+                                        <option value="AB+">AB+ Positive (Universal Recipient)</option>
+                                        <option value="AB-">AB- Negative</option>
+                                    </select>
+                                </div>
+
+                                <div class="compatibility-result">
+                                    <div class="compat-section">
+                                        <span class="compat-label">Can Receive From:</span>
+                                        <div class="badge-group" id="can-receive-badges"></div>
+                                    </div>
+                                    <div class="compat-section">
+                                        <span class="compat-label">Can Donate To:</span>
+                                        <div class="badge-group" id="can-donate-badges"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Blood Inventory Supply Radar -->
+                            <div class="glass-panel inventory-widget">
+                                <div class="panel-header">
+                                    <div class="panel-title">
+                                        <i class="ri-database-2-line text-amber"></i> Metro Stock Radar
+                                    </div>
+                                    <span class="tag tag-sm">Live Reserve</span>
+                                </div>
+
+                                <div class="inventory-meters" id="inventory-meters-list"></div>
+                            </div>
+
+                            <!-- Live Activity Ticker -->
+                            <div class="glass-panel activity-widget">
+                                <div class="panel-header">
+                                    <div class="panel-title">
+                                        <i class="ri-pulse-line text-green"></i> Live Activity Feed
+                                    </div>
+                                    <span class="pulse-indicator"></span>
+                                </div>
+
+                                <div class="activity-feed" id="activity-feed-list"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- TAB: GOOGLE FORMS PLATFORM LIVE UPDATE SYNC -->
+                <section class="tab-pane" id="tab-google-form-sync">
+                    <div class="glass-panel search-header-panel" style="border-top: 4px solid #EA4335;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.3rem;">
+                            <i class="ri-google-fill" style="font-size: 1.8rem; color: #EA4335;"></i>
+                            <h2>Google Platform & Google Forms Integration</h2>
+                        </div>
+                        <p>Submit responses via this Google Form interface to automatically update blood donor registries, blood bank stock, and emergency request channels live!</p>
+                    </div>
+
+                    <div class="dashboard-grid" style="grid-template-columns: 1.1fr 1fr;">
+                        <div class="google-form-card">
+                            <div class="gform-header-banner">
+                                <div class="gform-header-title">
+                                    <i class="ri-file-list-3-line"></i> Google Form: Emergency Blood Network Update
+                                </div>
+                                <p style="font-size: 0.82rem; opacity: 0.9;">Form Submissions sync directly to Dashboard database & Google Sheet ledger.</p>
+                            </div>
+
+                            <form id="google-platform-form" class="gform-body">
+                                <div class="gform-section">
+                                    <label class="gform-label">Submission Category <span style="color: #EA4335;">*</span></label>
+                                    <div class="gform-radio-group">
+                                        <label class="gform-radio-pill">
+                                            <input type="radio" name="gform-action" value="donor" checked> Register New Blood Donor
+                                        </label>
+                                        <label class="gform-radio-pill">
+                                            <input type="radio" name="gform-action" value="stock"> Update Blood Bank Stock (Units)
+                                        </label>
+                                        <label class="gform-radio-pill">
+                                            <input type="radio" name="gform-action" value="request"> Post Emergency Patient Request
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div id="gform-dynamic-fields" class="gform-fields-wrap"></div>
+
+                                <div class="gform-footer">
+                                    <button type="submit" class="gform-submit-btn">
+                                        <i class="ri-send-plane-fill"></i> Submit Response to Google Sheet & Update Dashboard
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div>
+                            <div class="glass-panel" style="margin-bottom: 1.5rem;">
+                                <div class="panel-header">
+                                    <div class="panel-title">
+                                        <i class="ri-table-line text-green"></i> Live Google Sheet Sync Ledger
+                                    </div>
+                                    <span class="tag tag-success"><i class="ri-refresh-line animated-spin"></i> Auto-Synced</span>
+                                </div>
+                                <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                                    <table class="custom-table gsheet-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Timestamp</th>
+                                                <th>Category</th>
+                                                <th>Details / User ID</th>
+                                                <th>Blood Type</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="gsheet-ledger-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: USER ID BLOOD GROUP SORTING ENGINE -->
+                <section class="tab-pane" id="tab-user-id-sort">
+                    <div class="glass-panel search-header-panel">
+                        <h2>Personalized Blood Group Sorting by Particular User ID</h2>
+                        <p>Lookup any registered User ID to automatically rank available blood groups and nearby compatible donors based on that user's medical profile.</p>
+
+                        <div class="user-id-lookup-bar">
+                            <div class="form-group" style="flex: 1; min-width: 260px;">
+                                <label for="user-id-input"><i class="ri-fingerprint-line text-crimson"></i> Enter Particular User ID or Email:</label>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="text" id="user-id-input" placeholder="e.g. USR-1001, USR-1003, or email..." value="USR-1001" style="flex: 1;">
+                                    <button class="btn btn-danger" id="lookup-user-id-btn">
+                                        <i class="ri-search-eye-line"></i> Sort Blood Groups
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="min-width: 220px;">
+                                <label for="user-id-quick-select"><i class="ri-user-follow-line text-amber"></i> Quick Select Preset Users:</label>
+                                <select id="user-id-quick-select" class="custom-select">
+                                    <option value="USR-1001">USR-1001: Elena Rostova (O- Universal)</option>
+                                    <option value="USR-1002">USR-1002: Marcus Sterling (A+ Group)</option>
+                                    <option value="USR-1003">USR-1003: Sophia Chen (B+ Group)</option>
+                                    <option value="USR-1005">USR-1005: Amara Vance (AB+ Recipient)</option>
+                                    <option value="USR-1008">USR-1008: Dr. Lucas Hayes (B- Rare)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-banner glass-panel" id="user-profile-banner" style="display: none;"></div>
+
+                    <div class="glass-panel" style="margin-top: 1.5rem;">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="ri-git-merge-line text-crimson"></i> Sorted Available Blood Groups for <span id="user-id-sorted-title">User ID USR-1001</span>
+                            </div>
+                            <span class="tag tag-info" id="user-id-match-summary">Sorted by Medical Compatibility & Stock</span>
+                        </div>
+                        <div class="location-groups-grid" id="user-id-sorted-groups-grid"></div>
+                    </div>
+
+                    <div class="glass-panel" style="margin-top: 1.5rem;">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="ri-user-heart-line text-crimson"></i> Compatible On-Call Donors Ranked for <span id="user-id-donor-title">User ID USR-1001</span>
+                            </div>
+                            <span class="donor-count-tag"><strong id="user-id-donor-count">0</strong> compatible donors</span>
+                        </div>
+                        <div class="donors-grid-view active" id="user-id-compatible-donors-grid"></div>
+                    </div>
+                </section>
+
+                <!-- TAB: LOCATION BLOOD STOCK & SORTING -->
+                <section class="tab-pane" id="tab-location-finder">
+                    <div class="glass-panel search-header-panel">
+                        <h2>Location-Based Blood Group Inventory & Donor Sorting</h2>
+                        <p>Select a specific metro location to view and sort available blood groups, stock levels, and user details.</p>
+
+                        <div class="location-sort-bar">
+                            <div class="form-group" style="min-width: 240px;">
+                                <label for="location-tab-select"><i class="ri-map-pin-line text-crimson"></i> Select Location / Medical Zone:</label>
+                                <select id="location-tab-select" class="custom-select">
+                                    <option value="Central Metro">Central Metro Zone</option>
+                                    <option value="North District">North District Zone</option>
+                                    <option value="South Hub">South Hub Zone</option>
+                                    <option value="East Coast">East Coast Zone</option>
+                                    <option value="West Suburban">West Suburban Zone</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="min-width: 240px;">
+                                <label for="location-sort-mode"><i class="ri-sort-desc text-amber"></i> Sort Available Blood Groups By:</label>
+                                <select id="location-sort-mode" class="custom-select">
+                                    <option value="units-desc">Highest Stock (Most Available Units)</option>
+                                    <option value="units-asc">Critical Stock (Lowest Available Units)</option>
+                                    <option value="donors-count">Most Active Donors</option>
+                                    <option value="type-name">Blood Group Name (A-Z)</option>
+                                </select>
+                            </div>
+
+                            <div style="align-self: flex-end;">
+                                <span class="tag tag-info" id="location-active-summary" style="padding: 0.6rem 1rem; font-size: 0.85rem;">
+                                    Location: Central Metro
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="location-groups-grid" id="location-groups-container"></div>
+
+                    <div class="glass-panel" style="margin-top: 1.5rem;">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="ri-user-heart-line text-crimson"></i> Registered Donors in <span id="location-donor-title-region">Central Metro</span>
+                            </div>
+                            <span class="donor-count-tag"><strong id="location-donor-count">0</strong> verified donors</span>
+                        </div>
+                        
+                        <div class="donors-grid-view active" id="location-donors-list"></div>
+                    </div>
+                </section>
+
+                <!-- FIND DONORS TAB -->
+                <section class="tab-pane" id="tab-donors">
+                    <div class="glass-panel search-header-panel">
+                        <h2>Advanced Donor Search Directory</h2>
+                        <p>Direct contact with verified registered blood donors in your medical zone.</p>
+                    </div>
+                    <div class="donors-grid-view active" id="full-donors-directory"></div>
+                </section>
+
+                <!-- BLOOD BANKS TAB -->
+                <section class="tab-pane" id="tab-banks">
+                    <div class="glass-panel search-header-panel">
+                        <h2>Partner Blood Banks & Reserve Hubs</h2>
+                        <p>Direct inventory checking and emergency request dispatch to central blood repositories.</p>
+                    </div>
+                    <div class="banks-grid" id="banks-grid-container"></div>
+                </section>
+
+                <!-- ABO MATRIX TAB -->
+                <section class="tab-pane" id="tab-compatibility">
+                    <div class="glass-panel matrix-full-panel">
+                        <h2>Complete ABO Blood Group Compatibility Guide</h2>
+                        <p>Medical reference for transfusion safety, antigen compatibility, and donor eligibility.</p>
+                        
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Blood Type</th>
+                                        <th>Gives Red Blood Cells To</th>
+                                        <th>Receives Red Blood Cells From</th>
+                                        <th>Universal Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="blood-type-badge b-o-neg">O-</span></td>
+                                        <td>EVERYONE (Universal Donor)</td>
+                                        <td>O- only</td>
+                                        <td><span class="tag tag-danger">Universal Donor</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="blood-type-badge b-o-pos">O+</span></td>
+                                        <td>O+, A+, B+, AB+</td>
+                                        <td>O+, O-</td>
+                                        <td><span class="tag tag-info">Most Common</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="blood-type-badge b-a-neg">A-</span></td>
+                                        <td>A+, A-, AB+, AB-</td>
+                                        <td>A-, O-</td>
+                                        <td><span class="tag">Rare</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="blood-type-badge b-a-pos">A+</span></td>
+                                        <td>A+, AB+</td>
+                                        <td>A+, A-, O+, O-</td>
+                                        <td><span class="tag">High Demand</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="blood-type-badge b-b-neg">B-</span></td>
+                                        <td>B+, B-, AB+, AB-</td>
+                                        <td>B-, O-</td>
+                                        <td><span class="tag">Rare</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="blood-type-badge b-b-pos">B+</span></td>
+                                        <td>B+, AB+</td>
+                                        <td>B+, B-, O+, O-</td>
+                                        <td><span class="tag">High Demand</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="blood-type-badge b-ab-neg">AB-</span></td>
+                                        <td>AB+, AB-</td>
+                                        <td>AB-, A-, B-, O-</td>
+                                        <td><span class="tag">Ultra Rare</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="blood-type-badge b-ab-pos">AB+</span></td>
+                                        <td>AB+ only</td>
+                                        <td>EVERYONE (Universal Recipient)</td>
+                                        <td><span class="tag tag-success">Universal Recipient</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SUPPLY RADAR TAB -->
+                <section class="tab-pane" id="tab-analytics">
+                    <div class="glass-panel radar-full-panel">
+                        <h2>Metro Blood Supply & Stock Analytics</h2>
+                        <div class="inventory-analytics-grid" id="full-analytics-meters"></div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- WEBSOCKET REAL-TIME LIVE DONOR CHAT MODAL -->
+    <div class="modal-overlay" id="donor-chat-modal">
+        <div class="modal-card" style="max-width: 580px; padding: 0; overflow: hidden;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #141926, #0D111A); padding: 1.25rem 1.5rem;">
+                <div class="modal-title-wrap" style="gap: 0.85rem;">
+                    <div style="position: relative;">
+                        <img src="" alt="Donor Avatar" id="chat-donor-avatar" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--primary-crimson); object-fit: cover;">
+                        <span class="ws-online-dot"></span>
+                    </div>
+                    <div>
+                        <h3 id="chat-donor-name" style="font-size: 1.1rem; display: flex; align-items: center; gap: 0.4rem;">
+                            Elena Rostova <span class="tag-blood highlight" id="chat-donor-blood" style="font-size: 0.75rem;">O-</span>
+                        </h3>
+                        <p style="font-size: 0.76rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem;">
+                            <span class="tag tag-success" style="padding: 0.1rem 0.4rem; font-size: 0.68rem;" id="chat-ws-status">
+                                <i class="ri-signal-tower-line animated-pulse"></i> WebSocket Connected
+                            </span>
+                            <span id="chat-donor-meta">USR-1001 • Central Metro (1.4 km)</span>
+                        </p>
+                    </div>
+                </div>
+                <button class="modal-close" id="close-chat-modal-btn"><i class="ri-close-line"></i></button>
+            </div>
+
+            <div class="chat-messages-container" id="chat-messages-body">
+                <!-- Messages rendered dynamically -->
+            </div>
+
+            <div class="chat-typing-indicator" id="chat-typing-indicator" style="display: none;">
+                <i class="ri-chat-voice-line text-crimson animated-pulse"></i> <span id="chat-typing-text">Elena Rostova is typing...</span>
+            </div>
+
+            <div class="chat-footer-bar">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.6rem; flex-wrap: wrap;">
+                    <button class="btn-text tag tag-info" id="chat-quick-loc-btn" style="font-size: 0.72rem; cursor: pointer;">
+                        <i class="ri-map-pin-user-line"></i> Share My Emergency Hospital Location
+                    </button>
+                    <button class="btn-text tag tag-danger" id="chat-quick-urg-btn" style="font-size: 0.72rem; cursor: pointer;">
+                        <i class="ri-alarm-warning-line"></i> Urgent: Request Immediate Confirmation
+                    </button>
+                </div>
+
+                <form id="chat-send-form" style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="chat-message-input" placeholder="Type your message to blood donor..." required style="flex: 1; background: var(--bg-dark); border: 1px solid var(--border-glass); padding: 0.7rem 1rem; border-radius: var(--radius-md); color: #fff; font-size: 0.88rem; outline: none;">
+                    <button type="submit" class="btn btn-danger" id="send-chat-btn">
+                        <i class="ri-send-plane-2-fill"></i> Send
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGGED IN USER BLOOD DETAILS MODAL -->
+    <div class="modal-overlay" id="my-blood-details-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="alert-icon-wrap" style="background: var(--crimson-dim);">
+                        <i class="ri-drop-fill text-crimson" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <div>
+                        <h3>Submit / Update My Blood Details</h3>
+                        <p>Provide your blood group, medical eligibility & location to join on-call donors</p>
+                    </div>
+                </div>
+                <button class="modal-close" id="close-my-blood-modal-btn"><i class="ri-close-line"></i></button>
+            </div>
+
+            <form id="user-blood-details-form">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="mb-full-name">Full Name <span style="color: var(--primary-crimson);">*</span></label>
+                            <input type="text" id="mb-full-name" required placeholder="e.g. Dr. Sarah Jenkins">
+                        </div>
+                        <div class="form-group">
+                            <label for="mb-user-id">System User ID</label>
+                            <input type="text" id="mb-user-id" readonly style="opacity: 0.7; cursor: not-allowed;" value="USR-ADMIN-01">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="mb-blood-group">My Blood Group <span style="color: var(--primary-crimson);">*</span></label>
+                            <select id="mb-blood-group" required class="custom-select">
+                                <option value="O-">O- Negative (Universal Donor)</option>
+                                <option value="O+">O+ Positive</option>
+                                <option value="A+">A+ Positive</option>
+                                <option value="A-">A- Negative</option>
+                                <option value="B+">B+ Positive</option>
+                                <option value="B-">B- Negative</option>
+                                <option value="AB+">AB+ Positive</option>
+                                <option value="AB-">AB- Negative</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="mb-region">Location / Medical Zone <span style="color: var(--primary-crimson);">*</span></label>
+                            <select id="mb-region" required class="custom-select">
+                                <option value="Central Metro">Central Metro Zone</option>
+                                <option value="North District">North District Zone</option>
+                                <option value="South Hub">South Hub Zone</option>
+                                <option value="East Coast">East Coast Zone</option>
+                                <option value="West Suburban">West Suburban Zone</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="mb-phone">Direct Phone Number <span style="color: var(--primary-crimson);">*</span></label>
+                            <input type="tel" id="mb-phone" required placeholder="+1 (555) 019-8877">
+                        </div>
+                        <div class="form-group">
+                            <label for="mb-email">Email Address</label>
+                            <input type="email" id="mb-email" required placeholder="sarah.jenkins@gmail.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="mb-readiness">On-Call Availability Status</label>
+                            <select id="mb-readiness" class="custom-select">
+                                <option value="Immediate">🟢 Ready Immediately (On-Call 24/7)</option>
+                                <option value="Today">🟡 Available Within 24 Hours</option>
+                                <option value="Unavailable">🔴 Currently Unavailable</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="mb-donations-count">Total Lifetime Donations (Pints)</label>
+                            <input type="number" id="mb-donations-count" min="0" max="100" value="12">
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1rem;">
+                        <h4 style="font-size: 0.88rem; font-family: var(--font-heading); margin-bottom: 0.6rem; color: var(--color-success);">
+                            <i class="ri-shield-check-line"></i> Donor Medical Clearance Checklist
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.8rem; color: var(--text-secondary);">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" checked required> Weight > 50kg (110 lbs) and in good general health
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" checked required> No major surgery or tattoo in the last 6 months
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" checked required> I consent to share my blood group & region with emergency patients
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-my-blood-btn">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="ri-save-line"></i> Save & Register Blood Details
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- GOOGLE OAUTH 2.0 LOGIN MODAL -->
+    <div class="modal-overlay" id="login-modal">
+        <div class="modal-card modal-sm">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="alert-icon-wrap" style="background: rgba(66,133,244,0.15);">
+                        <i class="ri-google-fill text-amber" style="font-size: 1.4rem;"></i>
+                    </div>
+                    <div>
+                        <h3>Google Account OAuth 2.0 Sign In</h3>
+                        <p>Authenticate securely using your Google (Gmail) ID</p>
+                    </div>
+                </div>
+                <button class="modal-close" id="close-login-modal-btn"><i class="ri-close-line"></i></button>
+            </div>
+            
+            <div class="modal-body">
+                <button class="btn-google-oauth btn-block" style="padding: 0.85rem; font-size: 0.95rem;" onclick="triggerGoogleOAuthLogin()">
+                    <svg class="google-logo-svg" width="20" height="20" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                    <span>Sign in with Google Account</span>
+                </button>
+
+                <div style="display: flex; align-items: center; margin: 1rem 0; gap: 0.5rem;">
+                    <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">OR QUICK SELECT PRESET GOOGLE ACCOUNT</span>
+                    <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-preset-select">Select Google User Profile:</label>
+                    <select id="login-preset-select" class="custom-select">
+                        <option value="USR-ADMIN-01">Dr. Sarah Jenkins (sarah.jenkins@gmail.com)</option>
+                        <option value="USR-1001">Elena Rostova (elena.rostova@gmail.com - O-)</option>
+                        <option value="USR-1002">Marcus Sterling (marcus.sterling@gmail.com - A+)</option>
+                        <option value="USR-1003">Sophia Chen (sophia.chen@gmail.com - B+)</option>
+                        <option value="USR-1005">Amara Vance (amara.vance@gmail.com - AB+)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancel-login-btn">Close</button>
+                <button type="button" class="btn btn-danger" onclick="triggerGoogleOAuthLogin()">
+                    <i class="ri-login-box-line"></i> Authenticate Session
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EMERGENCY BLOOD REQUEST MODAL -->
+    <div class="modal-overlay" id="request-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="alert-icon-wrap">
+                        <i class="ri-alarm-warning-fill text-crimson"></i>
+                    </div>
+                    <div>
+                        <h3>Broadcast Emergency Blood Request</h3>
+                        <p>Locate & dispatch compatible donors within minutes</p>
+                    </div>
+                </div>
+                <button class="modal-close" id="close-modal-btn"><i class="ri-close-line"></i></button>
+            </div>
+
+            <form id="emergency-request-form">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="req-patient-name">Patient Full Name / User ID</label>
+                            <input type="text" id="req-patient-name" required placeholder="e.g. Robert Vance (USR-1004)">
+                        </div>
+                        <div class="form-group">
+                            <label for="req-blood-group">Required Blood Group</label>
+                            <select id="req-blood-group" required class="custom-select">
+                                <option value="O-">O- Negative (Universal)</option>
+                                <option value="O+">O+ Positive</option>
+                                <option value="A+">A+ Positive</option>
+                                <option value="A-">A- Negative</option>
+                                <option value="B+">B+ Positive</option>
+                                <option value="B-">B- Negative</option>
+                                <option value="AB+">AB+ Positive</option>
+                                <option value="AB-">AB- Negative</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="req-units">Units Required (Pints)</label>
+                            <input type="number" id="req-units" min="1" max="10" value="2" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="req-urgency">Urgency Level</label>
+                            <select id="req-urgency" class="custom-select">
+                                <option value="CRITICAL">🔴 Critical (Immediate / Surgery)</option>
+                                <option value="HIGH">🟠 High (Within 4 Hours)</option>
+                                <option value="STANDARD">🟡 Standard (Within 24 Hours)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="req-hospital">Hospital / Medical Center</label>
+                            <input type="text" id="req-hospital" required placeholder="e.g. Saint Jude Emergency Care, Room 402">
+                        </div>
+                        <div class="form-group">
+                            <label for="req-contact">Attending Doctor / Contact Phone</label>
+                            <input type="tel" id="req-contact" required placeholder="+1 (555) 019-2834">
+                        </div>
+                    </div>
+
+                    <div class="modal-matches-box" id="modal-matches-box">
+                        <div class="matches-header">
+                            <span><i class="ri-user-heart-line text-crimson"></i> Compatible Donors Found:</span>
+                            <span class="match-count-badge" id="modal-match-count">3 Donors Ready</span>
+                        </div>
+                        <div class="matches-list" id="modal-matches-list"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancel-modal-btn">Cancel</button>
+                    <button type="submit" class="btn btn-danger btn-pulse">
+                        <i class="ri-broadcast-line"></i> Broadcast Emergency Alert
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DIRECT DONOR USER DETAILS ACCESS MODAL -->
+    <div class="modal-overlay" id="contact-donor-modal">
+        <div class="modal-card modal-sm">
+            <div class="modal-header">
+                <h3>Google Account Profile & Session Payload</h3>
+                <button class="modal-close" id="close-contact-modal-btn"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body" id="contact-modal-content">
+                <!-- Filled dynamically with complete user & OAuth session details -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-contact-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('[ServiceWorker] Registered successfully:', reg.scope))
+                    .catch(err => console.log('[ServiceWorker] Registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
