@@ -13,12 +13,29 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Security & Middleware
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-    origin: 'http://localhost:8080',
+    origin: true,
     credentials: true
 }));
 app.use(express.json());
+
+// Health Check Endpoints
+app.get(['/', '/health', '/api/v1/health'], (req, res) => {
+    res.json({
+        status: 'online',
+        service: 'PulseRed Blood Donation Core API Server',
+        timestamp: new Date().toISOString(),
+        version: '1.0.0',
+        endpoints: [
+            'GET  /api/v1/health',
+            'GET  /api/v1/donors',
+            'GET  /api/v1/auth/google',
+            'POST /api/v1/auth/google/callback',
+            'POST /api/v1/auth/logout'
+        ]
+    });
+});
 
 // Rate Limiter
 const authLimiter = rateLimit({
@@ -29,7 +46,7 @@ const authLimiter = rateLimit({
 
 app.use('/api/v1/auth', authLimiter);
 
-// MOCK USER DATABASE (Production Postgres fallback)
+// MOCK DONOR DATABASE & USER DB
 const mockUsersDb = [
     {
         id: 'usr-uuid-1001',
@@ -42,6 +59,27 @@ const mockUsersDb = [
     }
 ];
 
+const mockDonorsDb = [
+    { id: 1, userId: 'USR-1001', name: 'Elena Rostova', bloodType: 'O-', distanceKm: 1.4, region: 'Central Metro', ready: 'Immediate', verified: true, phone: '+1 (555) 234-5678', email: 'elena.rostova@gmail.com', donationsCount: 14, lastDonated: '4 months ago', rating: '4.9 ★' },
+    { id: 2, userId: 'USR-1002', name: 'Marcus Sterling', bloodType: 'A+', distanceKm: 2.8, region: 'Central Metro', ready: 'Immediate', verified: true, phone: '+1 (555) 876-5432', email: 'marcus.sterling@gmail.com', donationsCount: 8, lastDonated: '6 months ago', rating: '4.8 ★' },
+    { id: 3, userId: 'USR-1003', name: 'Sophia Chen', bloodType: 'B+', distanceKm: 3.5, region: 'Central Metro', ready: 'Today', verified: true, phone: '+1 (555) 345-6789', email: 'sophia.chen@gmail.com', donationsCount: 22, lastDonated: '5 months ago', rating: '5.0 ★' },
+    { id: 4, userId: 'USR-1004', name: 'David Miller', bloodType: 'O+', distanceKm: 4.1, region: 'Central Metro', ready: 'Immediate', verified: false, phone: '+1 (555) 987-6543', email: 'david.m@gmail.com', donationsCount: 5, lastDonated: '3 months ago', rating: '4.7 ★' },
+    { id: 5, userId: 'USR-1005', name: 'Amara Vance', bloodType: 'AB+', distanceKm: 4.8, region: 'Central Metro', ready: 'Immediate', verified: true, phone: '+1 (555) 456-7890', email: 'amara.vance@gmail.com', donationsCount: 19, lastDonated: '7 months ago', rating: '4.9 ★' }
+];
+
+// DONORS API ROUTE
+app.get('/api/v1/donors', (req, res) => {
+    const { bloodType, region } = req.query;
+    let results = [...mockDonorsDb];
+    if (bloodType) {
+        results = results.filter(d => d.bloodType.toLowerCase() === bloodType.toLowerCase());
+    }
+    if (region) {
+        results = results.filter(d => d.region.toLowerCase().includes(region.toLowerCase()));
+    }
+    res.json({ success: true, count: results.length, data: results });
+});
+
 // AUTH ROUTES
 app.get('/api/v1/auth/google', (req, res) => {
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=GOOGLE_CLIENT_ID.apps.googleusercontent.com&redirect_uri=http://localhost:8080/callback&scope=openid%20profile%20email`;
@@ -51,7 +89,7 @@ app.get('/api/v1/auth/google', (req, res) => {
 // OAuth Callback Simulation / Production Handler
 app.post('/api/v1/auth/google/callback', (req, res) => {
     const { googleProfile } = req.body;
-    
+
     if (!googleProfile || !googleProfile.email) {
         return res.status(400).json({ error: 'Invalid Google Profile token payload' });
     }
@@ -94,7 +132,7 @@ app.post('/api/v1/auth/google/callback', (req, res) => {
 app.post('/api/v1/auth/logout', (req, res) => {
     const authHeader = req.headers.authorization;
     const accessToken = authHeader && authHeader.split(' ')[1];
-    
+
     authService.revokeSession(req.cookies?.refreshToken, accessToken);
     res.clearCookie('refreshToken');
     res.json({ success: true, message: 'Logged out successfully' });
