@@ -1,0 +1,186 @@
+{
+  "users": [
+    {
+      "id": "usr-uuid-1001",
+      "google_id": "109823471092834710928",
+      "email": "elena.r@healthnet.org",
+      "full_name": "Elena Rostova",
+      "profile_picture": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "blood_group": "O-",
+      "role": "donor",
+      "is_email_verified": true,
+      "phone_number": "+1 (555) 234-5678",
+      "region": "Central Metro",
+      "created_at": "2026-08-01T21:12:39.794Z"
+    }
+  ],
+  "donors": [
+    {
+      "id": 1,
+      "userId": "USR-1001",
+      "name": "Elena Rostova",
+      "bloodType": "O-",
+      "distanceKm": 1.4,
+      "region": "Central Metro",
+      "ready": "Immediate",
+      "verified": true,
+      "phone": "+1 (555) 234-5678",
+      "email": "elena.rostova@gmail.com",
+      "donationsCount": 14,
+      "lastDonated": "4 months ago",
+      "rating": "4.9 ★"
+    },
+    {
+      "id": 2,
+      "userId": "USR-1002",
+      "name": "Marcus Sterling",
+      "bloodType": "A+",
+      "distanceKm": 2.8,
+      "region": "Central Metro",
+      "ready": "Immediate",
+      "verified": true,
+      "phone": "+1 (555) 876-5432",
+      "email": "marcus.sterling@gmail.com",
+      "donationsCount": 8,
+      "lastDonated": "6 months ago",
+      "rating": "4.8 ★"
+    },
+    {
+      "id": 3,
+      "userId": "USR-1003",
+      "name": "Sophia Chen",
+      "bloodType": "B+",
+      "distanceKm": 3.5,
+      "region": "Central Metro",
+      "ready": "Today",
+      "verified": true,
+      "phone": "+1 (555) 345-6789",
+      "email": "sophia.chen@gmail.com",
+      "donationsCount": 22,
+      "lastDonated": "5 months ago",
+      "rating": "5.0 ★"
+    },
+    {
+      "id": 4,
+      "userId": "USR-1004",
+      "name": "David Miller",
+      "bloodType": "O+",
+      "distanceKm": 4.1,
+      "region": "Central Metro",
+      "ready": "Immediate",
+      "verified": false,
+      "phone": "+1 (555) 987-6543",
+      "email": "david.m@gmail.com",
+      "donationsCount": 5,
+      "lastDonated": "3 months ago",
+      "rating": "4.7 ★"
+    },
+    {
+      "id": 5,
+      "userId": "USR-1005",
+      "name": "Amara Vance",
+      "bloodType": "AB+",
+      "distanceKm": 4.8,
+      "region": "Central Metro",
+      "ready": "Immediate",
+      "verified": true,
+      "phone": "+1 (555) 456-7890",
+      "email": "amara.vance@gmail.com",
+      "donationsCount": 19,
+      "lastDonated": "7 months ago",
+      "rating": "4.9 ★"
+    }
+  ],
+  "inventory": {
+    "Central Metro": {
+      "O-": 12,
+      "O+": 45,
+      "A+": 38,
+      "A-": 15,
+      "B+": 30,
+      "B-": 8,
+      "AB+": 22,
+      "AB-": 4
+    },
+    "North District": {
+      "O-": 6,
+      "O+": 28,
+      "A+": 20,
+      "A-": 8,
+      "B+": 18,
+      "B-": 3,
+      "AB+": 14,
+      "AB-": 2
+    },
+    "South Hub": {
+      "O-": 9,
+      "O+": 34,
+      "A+": 29,
+      "A-": 12,
+      "B+": 24,
+      "B-": 7,
+      "AB+": 16,
+      "AB-": 5
+    },
+    "East Coast": {
+      "O-": 14,
+      "O+": 50,
+      "A+": 42,
+      "A-": 18,
+      "B+": 35,
+      "B-": 11,
+      "AB+": 26,
+      "AB-": 8
+    },
+    "West Suburban": {
+      "O-": 5,
+      "O+": 22,
+      "A+": 19,
+      "A-": 6,
+      "B+": 15,
+      "B-": 4,
+      "AB+": 10,
+      "AB-": 1
+    }
+  },
+  "emergency_requests": [
+    {
+      "id": "REQ-101",
+      "requesterName": "Dr. Robert Vance",
+      "hospitalName": "Central Metro General Hospital",
+      "bloodType": "O-",
+      "unitsRequired": 3,
+      "urgencyLevel": "CRITICAL",
+      "region": "Central Metro",
+      "status": "PENDING",
+      "contactPhone": "+1 (555) 911-0022",
+      "createdAt": "2026-08-01T21:12:39.795Z"
+    }
+  ],
+  "audit_ledger": [
+    {
+      "id": 1,
+      "timestamp": "14:32:10",
+      "category": "Donor Reg",
+      "details": "Elena Rostova (USR-1001)",
+      "bloodType": "O-",
+      "status": "Synced"
+    },
+    {
+      "id": 2,
+      "timestamp": "14:15:44",
+      "category": "Stock Update",
+      "details": "Metro Central (+15 Units)",
+      "bloodType": "A+",
+      "status": "Synced"
+    },
+    {
+      "id": 3,
+      "timestamp": "13:58:02",
+      "category": "Request",
+      "details": "St. Jude Hospital (Surgery)",
+      "bloodType": "B-",
+      "status": "Fulfilled"
+    }
+  ]
+}

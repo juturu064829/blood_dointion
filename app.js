@@ -85,6 +85,116 @@ let currentUser = {
 };
 
 /* ==========================================================================
+   2.5 SECURE BACKEND API INTEGRATION ENGINE (JWT + REST DB FETCH)
+   ========================================================================== */
+const BackendAPI = {
+    BASE_URL: 'http://localhost:4000/api/v1',
+    isOnline: false,
+
+    getHeaders() {
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        if (currentUser && currentUser.jwtToken) {
+            headers['Authorization'] = `Bearer ${currentUser.jwtToken}`;
+        }
+        return headers;
+    },
+
+    async checkHealth() {
+        try {
+            const res = await fetch(`${this.BASE_URL}/health`, { method: 'GET', headers: this.getHeaders() });
+            if (res.ok) {
+                const data = await res.json();
+                this.isOnline = true;
+                console.log('[BackendAPI] Connected to database server:', data.service);
+                return data;
+            }
+        } catch (e) {
+            this.isOnline = false;
+            console.log('[BackendAPI] Database server offline, operating in local cached mode.');
+        }
+        return null;
+    },
+
+    async syncDonors(bloodType = '', region = '') {
+        try {
+            const params = new URLSearchParams();
+            if (bloodType) params.append('bloodType', bloodType);
+            if (region) params.append('region', region);
+
+            const res = await fetch(`${this.BASE_URL}/donors?${params.toString()}`, {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+            if (res.ok) {
+                const result = await res.json();
+                if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+                    this.isOnline = true;
+                    return result.data;
+                }
+            }
+        } catch (e) {
+            this.isOnline = false;
+        }
+        return null;
+    },
+
+    async registerDonor(donorData) {
+        try {
+            const res = await fetch(`${this.BASE_URL}/donors`, {
+                method: 'POST',
+                headers: this.getHeaders(),
+                body: JSON.stringify(donorData)
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                return data;
+            }
+            throw new Error(data.message || 'Failed to register donor in database');
+        } catch (e) {
+            console.warn('[BackendAPI] Donor DB registration error:', e.message);
+            return null;
+        }
+    },
+
+    async submitEmergencyRequest(reqData) {
+        try {
+            const res = await fetch(`${this.BASE_URL}/requests`, {
+                method: 'POST',
+                headers: this.getHeaders(),
+                body: JSON.stringify(reqData)
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                return data;
+            }
+            throw new Error(data.message || 'Failed to submit request to database');
+        } catch (e) {
+            console.warn('[BackendAPI] Request submission error:', e.message);
+            return null;
+        }
+    },
+
+    async checkABOCompatibility(recipientBloodType, donorBloodType) {
+        try {
+            const res = await fetch(`${this.BASE_URL}/compatibility/check`, {
+                method: 'POST',
+                headers: this.getHeaders(),
+                body: JSON.stringify({ recipientBloodType, donorBloodType })
+            });
+            if (res.ok) {
+                return await res.json();
+            }
+        } catch (e) {
+            console.warn('[BackendAPI] Compatibility API offline');
+        }
+        return null;
+    }
+};
+
+/* ==========================================================================
    3. CLIENT-SIDE CACHING ENGINE (LocalStorage & In-Memory TTL Query Cache)
    ========================================================================== */
 const CacheManager = {

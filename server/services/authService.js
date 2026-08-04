@@ -1,6 +1,6 @@
 /* ==========================================================================
-   PULSERED - Auth Service (JWT + Redis Session Manager)
-   Features: Token Sign/Verify, Refresh Token Rotation, Redis Blacklist
+   PULSERED - Auth Service (JWT + Redis/Session Manager)
+   Features: Token Sign/Verify, Refresh Token Rotation, Revocation Blacklist
    ========================================================================== */
 
 const jwt = require('jsonwebtoken');
@@ -13,37 +13,47 @@ const REFRESH_TOKEN_EXPIRY_DAYS = 7;
 
 class AuthService {
     constructor() {
-        // In-Memory Redis Store fallback simulator
         this.redisMock = new Map();
         this.blacklistedJwt = new Set();
     }
 
-    // 1. Generate short-lived JWT Access Token
+    /**
+     * Generate short-lived JWT Access Token with algorithm specification
+     */
     generateAccessToken(user) {
         const payload = {
             sub: user.id,
-            googleId: user.google_id,
+            googleId: user.google_id || user.googleId,
             email: user.email,
-            name: user.full_name,
-            bloodGroup: user.blood_group || 'O-',
+            name: user.full_name || user.name,
+            bloodGroup: user.blood_group || user.bloodType || 'O-',
             role: user.role || 'donor'
         };
 
-        return jwt.sign(payload, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
+        return jwt.sign(payload, JWT_SECRET, { 
+            expiresIn: ACCESS_TOKEN_EXPIRY,
+            algorithm: 'HS256'
+        });
     }
 
-    // 2. Generate Refresh Token with Family ID (for Refresh Token Rotation)
+    /**
+     * Generate Refresh Token with Family ID for Refresh Token Rotation
+     */
     generateRefreshToken(userId, familyId = null) {
-        const newFamilyId = familyId || crypto.randomUUID();
+        const newFamilyId = familyId || (crypto.randomUUID ? crypto.randomUUID() : `fam-${Date.now()}`);
+        const jti = crypto.randomUUID ? crypto.randomUUID() : `jti-${Date.now()}-${Math.random()}`;
+        
         const payload = {
             sub: userId,
             familyId: newFamilyId,
-            jti: crypto.randomUUID()
+            jti
         };
 
-        const token = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: `${REFRESH_TOKEN_EXPIRY_DAYS}d` });
+        const token = jwt.sign(payload, JWT_REFRESH_SECRET, { 
+            expiresIn: `${REFRESH_TOKEN_EXPIRY_DAYS}d`,
+            algorithm: 'HS256'
+        });
 
-        // Store active session in Redis
         this.redisMock.set(`session:${token}`, {
             userId,
             familyId: newFamilyId,
@@ -54,15 +64,33 @@ class AuthService {
         return { token, familyId: newFamilyId };
     }
 
-    // 3. Verify JWT Access Token
+    /**
+     * Verify JWT Access Token with explicit algorithm verification
+     */
     verifyAccessToken(token) {
         if (this.blacklistedJwt.has(token)) {
             throw new Error('Token has been revoked');
         }
-        return jwt.verify(token, JWT_SECRET);
+        return jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
     }
 
-    // 4. Revoke Session (Logout)
+    /**
+     * Verify Refresh Token
+     */
+    verifyRefreshToken(refreshToken) {
+        if (!refreshToken) {
+            throw new Error('Refresh token missing');
+        }
+        const session = this.redisMock.get(`session:${refreshToken}`);
+        if (!session) {
+            throw new Error('Invalid or expired refresh token session');
+        }
+        return jwt.verify(refreshToken, JWT_REFRESH_SECRET, { algorithms: ['HS256'] });
+    }
+
+    /**
+     * Revoke Session (Logout)
+     */
     revokeSession(refreshToken, accessToken = null) {
         if (refreshToken) {
             this.redisMock.delete(`session:${refreshToken}`);
