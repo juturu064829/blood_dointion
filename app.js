@@ -88,7 +88,7 @@ let currentUser = {
    2.5 SECURE BACKEND API INTEGRATION ENGINE (JWT + REST DB FETCH)
    ========================================================================== */
 const BackendAPI = {
-    BASE_URL: 'http://localhost:4000/api/v1',
+    BASE_URL: 'http://localhost:4000/api',
     isOnline: false,
 
     getHeaders() {
@@ -121,18 +121,18 @@ const BackendAPI = {
     async syncDonors(bloodType = '', region = '') {
         try {
             const params = new URLSearchParams();
-            if (bloodType) params.append('bloodType', bloodType);
-            if (region) params.append('region', region);
+            if (bloodType) params.append('bloodGroup', bloodType);
+            if (region && region !== 'all') params.append('district', region);
 
-            const res = await fetch(`${this.BASE_URL}/donors?${params.toString()}`, {
+            const res = await fetch(`${this.BASE_URL}/donors/search?${params.toString()}`, {
                 method: 'GET',
                 headers: this.getHeaders()
             });
             if (res.ok) {
                 const result = await res.json();
-                if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+                if (result.success && Array.isArray(result.donors) && result.donors.length > 0) {
                     this.isOnline = true;
-                    return result.data;
+                    return result.donors;
                 }
             }
         } catch (e) {
@@ -143,7 +143,7 @@ const BackendAPI = {
 
     async registerDonor(donorData) {
         try {
-            const res = await fetch(`${this.BASE_URL}/donors`, {
+            const res = await fetch(`${this.BASE_URL}/auth/register`, {
                 method: 'POST',
                 headers: this.getHeaders(),
                 body: JSON.stringify(donorData)
@@ -161,7 +161,7 @@ const BackendAPI = {
 
     async submitEmergencyRequest(reqData) {
         try {
-            const res = await fetch(`${this.BASE_URL}/requests`, {
+            const res = await fetch(`${this.BASE_URL}/blood-requests`, {
                 method: 'POST',
                 headers: this.getHeaders(),
                 body: JSON.stringify(reqData)
@@ -177,19 +177,14 @@ const BackendAPI = {
         }
     },
 
-    async checkABOCompatibility(recipientBloodType, donorBloodType) {
+    async fetchAdminStats() {
         try {
-            const res = await fetch(`${this.BASE_URL}/compatibility/check`, {
-                method: 'POST',
-                headers: this.getHeaders(),
-                body: JSON.stringify({ recipientBloodType, donorBloodType })
-            });
+            const res = await fetch(`${this.BASE_URL}/admin/stats`, { method: 'GET', headers: this.getHeaders() });
             if (res.ok) {
-                return await res.json();
+                const data = await res.json();
+                return data.stats;
             }
-        } catch (e) {
-            console.warn('[BackendAPI] Compatibility API offline');
-        }
+        } catch (e) {}
         return null;
     }
 };

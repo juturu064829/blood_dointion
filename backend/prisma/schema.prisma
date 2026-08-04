@@ -1,0 +1,122 @@
+// backend/prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  DONOR
+  REQUESTER
+  HOSPITAL
+  ADMIN
+}
+
+enum Urgency {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  FULFILLED
+  CANCELLED
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  phone         String?
+  passwordHash  String
+  role          Role           @default(DONOR)
+  isVerified    Boolean        @default(true)
+  googleId      String?        @unique
+  profilePic    String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  donorProfile  DonorProfile?
+  bloodRequests BloodRequest[]
+  notifications Notification[]
+}
+
+model DonorProfile {
+  id                 String     @id @default(uuid())
+  userId             String     @unique
+  user               User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bloodGroup         String
+  dateOfBirth        DateTime?
+  gender             String?
+  state              String     @default("Andhra Pradesh")
+  district           String
+  city               String
+  pincode            String?
+  latitude           Float?
+  longitude          Float?
+  lastDonationDate   DateTime?
+  available          Boolean    @default(true)
+  emergencyAvailable Boolean    @default(true)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  donations          Donation[]
+}
+
+model BloodRequest {
+  id              String        @id @default(uuid())
+  requesterId     String
+  requester       User          @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+  patientName     String
+  bloodGroup      String
+  unitsRequired   Int
+  hospitalName    String
+  hospitalAddress String
+  state           String        @default("Andhra Pradesh")
+  district        String
+  city            String
+  pincode         String?
+  urgency         Urgency       @default(HIGH)
+  description     String?
+  status          RequestStatus @default(PENDING)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  donations       Donation[]
+}
+
+model Donation {
+  id           String       @id @default(uuid())
+  donorId      String
+  donor        DonorProfile @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  requestId    String
+  request      BloodRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  donationDate DateTime     @default(now())
+  units        Int          @default(1)
+  hospitalName String
+  status       String       @default("COMPLETED")
+  createdAt    DateTime     @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Location {
+  id       String @id @default(uuid())
+  state    String @default("Andhra Pradesh")
+  district String
+  city     String
+  pincode  String
+}
