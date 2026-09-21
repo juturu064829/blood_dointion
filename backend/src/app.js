@@ -15,6 +15,7 @@ try { setupSwagger = require('./utils/swagger'); } catch (e) {}
 
 // Import Route Handlers
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 const donorRoutes = require('./routes/donorRoutes');
 const requestRoutes = require('./routes/requestRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
@@ -53,16 +54,22 @@ if (setupSwagger) {
     try { setupSwagger(app); } catch (e) {}
 }
 
-// Mount API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/donors', donorRoutes);
-app.use('/api/blood-requests', requestRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/locations', locationRoutes);
+// Mount API Routes (Supports both /api and /api/v1)
+app.use(['/api/auth', '/api/v1/auth'], authRoutes);
+app.use(['/api/users', '/api/v1/users'], userRoutes);
+app.use(['/api/donors', '/api/v1/donors'], donorRoutes);
+app.use(['/api/blood-requests', '/api/v1/blood-requests', '/api/v1/requests'], requestRoutes);
+app.use(['/api/notifications', '/api/v1/notifications'], notificationRoutes);
+app.use(['/api/admin', '/api/v1/admin'], adminRoutes);
+app.use(['/api/locations', '/api/v1/locations'], locationRoutes);
+
+const path = require('path');
+
+// Serve static web frontend from root workspace
+app.use(express.static(path.join(__dirname, '../../')));
 
 // Health Check Endpoint
-app.get(['/', '/health', '/api/health'], (req, res) => {
+app.get(['/health', '/api/health', '/api/v1/health'], (req, res) => {
     res.json({
         status: 'online',
         service: 'PulseRed Full-Stack Blood Donation Core API',

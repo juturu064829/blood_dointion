@@ -5,12 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PulseRed | Blood Search & Donor Management Dashboard</title>
     <meta name="description" content="Real-time emergency blood search, donor matching network, ABO compatibility engine, Google OAuth 2.0 authentication, WebSocket live donor chat, Google Forms live sync, and client-side caching engine.">
+    <!-- Security Headers & Content Security Policy (CSP) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; img-src 'self' data: https:; connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:*; frame-src 'self' https://accounts.google.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- RemixIcon for crisp SVG Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" crossorigin="anonymous">
     <!-- Google Identity Services SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="styles.css">
@@ -19,6 +24,7 @@
     <!-- Background Glow Elements -->
     <div class="bg-glow glow-1"></div>
     <div class="bg-glow glow-2"></div>
+    <div class="bg-glow glow-3"></div>
 
     <div class="app-container">
         <!-- Sidebar Navigation -->
@@ -114,7 +120,7 @@
                     </button>
 
                     <!-- GOOGLE OAUTH OFFICIAL BUTTON -->
-                    <button class="btn-google-oauth" id="google-oauth-header-btn">
+                    <button type="button" class="btn-google-oauth" id="google-oauth-header-btn">
                         <svg class="google-logo-svg" width="18" height="18" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -136,6 +142,22 @@
                         </button>
                     </div>
 
+                    <!-- RESPONSIVE OBSIDIAN LIVE SEARCH BAR -->
+                    <div class="search-container">
+                        <span class="search-icon"><i class="ri-search-line"></i></span>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="search-input" 
+                            placeholder="Search Donors, Hospitals (KGH, GGH, VIMS), Blood Group..." 
+                            autocomplete="off"
+                        />
+                        <button type="button" class="search-clear-btn" id="searchInputClear" title="Clear Search" style="display: none;">
+                            <i class="ri-close-line"></i>
+                        </button>
+                        <div id="searchResults" class="search-results"></div>
+                    </div>
+
                     <div class="location-selector">
                         <i class="ri-map-pin-2-fill text-crimson"></i>
                         <select id="city-selector" class="custom-select">
@@ -145,12 +167,27 @@
                             <option value="Guntur">Guntur District</option>
                             <option value="Tirupati">Tirupati District</option>
                             <option value="Kurnool">Kurnool District</option>
+                            <option value="Nandyal">Nandyal District</option>
                             <option value="Nellore">SPS Nellore District</option>
-                            <option value="YSR Kadapa">YSR Kadapa District</option>
                             <option value="Kakinada">Kakinada District</option>
                             <option value="East Godavari">East Godavari (Rajahmundry)</option>
-                            <option value="Anantapur">Anantapur District</option>
+                            <option value="Konaseema">Dr. B.R. Ambedkar Konaseema</option>
+                            <option value="YSR Kadapa">YSR Kadapa District</option>
+                            <option value="Annamayya">Annamayya District</option>
                             <option value="Chittoor">Chittoor District</option>
+                            <option value="Sri Sathya Sai">Sri Sathya Sai District</option>
+                            <option value="Anantapur">Ananthapuramu District</option>
+                            <option value="Prakasam">Prakasam District</option>
+                            <option value="Bapatla">Bapatla District</option>
+                            <option value="Palnadu">Palnadu District</option>
+                            <option value="Eluru">Eluru District</option>
+                            <option value="West Godavari">West Godavari (Bhimavaram)</option>
+                            <option value="Vizianagaram">Vizianagaram District</option>
+                            <option value="Srikakulam">Srikakulam District</option>
+                            <option value="Parvathipuram">Parvathipuram Manyam</option>
+                            <option value="ASR District">Alluri Sitharama Raju</option>
+                            <option value="NTR District">NTR District</option>
+                            <option value="Anakapalli">Anakapalli District</option>
                         </select>
                     </div>
 
@@ -276,7 +313,10 @@
                                 <div class="secondary-filters">
                                     <div class="search-input-wrap">
                                         <i class="ri-search-2-line search-icon"></i>
-                                        <input type="text" id="donor-search-input" placeholder="Search by donor name, User ID, suburb, phone, or location...">
+                                        <input type="text" id="donor-search-input" placeholder="Search donor name, hospital (KGH, GGH), User ID, phone, district...">
+                                        <button type="button" class="search-clear-btn" id="donorSearchInputClear" title="Clear Search" style="display: none;">
+                                            <i class="ri-close-line"></i>
+                                        </button>
                                     </div>
 
                                     <div class="filter-controls">
@@ -560,11 +600,32 @@
                             <div class="form-group" style="min-width: 240px;">
                                 <label for="location-tab-select"><i class="ri-map-pin-line text-crimson"></i> Select Location / Medical Zone:</label>
                                 <select id="location-tab-select" class="custom-select">
-                                    <option value="Central Metro">Central Metro Zone</option>
-                                    <option value="North District">North District Zone</option>
-                                    <option value="South Hub">South Hub Zone</option>
-                                    <option value="East Coast">East Coast Zone</option>
-                                    <option value="West Suburban">West Suburban Zone</option>
+                                    <option value="Visakhapatnam" selected>Visakhapatnam Medical Hub</option>
+                                    <option value="Krishna">Krishna (Vijayawada GGH)</option>
+                                    <option value="Guntur">Guntur Medical Zone</option>
+                                    <option value="Tirupati">Tirupati SVRR Hub</option>
+                                    <option value="Kurnool">Kurnool Medical Zone</option>
+                                    <option value="Nandyal">Nandyal District Hub</option>
+                                    <option value="Nellore">SPS Nellore GGH</option>
+                                    <option value="Kakinada">Kakinada RMC Hub</option>
+                                    <option value="East Godavari">East Godavari (Rajahmundry)</option>
+                                    <option value="Konaseema">Dr. B.R. Ambedkar Konaseema</option>
+                                    <option value="YSR Kadapa">YSR Kadapa RIMS</option>
+                                    <option value="Annamayya">Annamayya District Hub</option>
+                                    <option value="Chittoor">Chittoor District Hub</option>
+                                    <option value="Sri Sathya Sai">Sri Sathya Sai Hub</option>
+                                    <option value="Anantapur">Ananthapuramu Hub</option>
+                                    <option value="Prakasam">Prakasam District Hub</option>
+                                    <option value="Bapatla">Bapatla District Hub</option>
+                                    <option value="Palnadu">Palnadu District Hub</option>
+                                    <option value="Eluru">Eluru District Hub</option>
+                                    <option value="West Godavari">West Godavari (Bhimavaram)</option>
+                                    <option value="Vizianagaram">Vizianagaram Zone</option>
+                                    <option value="Srikakulam">Srikakulam GGH Hub</option>
+                                    <option value="Parvathipuram">Parvathipuram Manyam Hub</option>
+                                    <option value="ASR District">Alluri Sitharama Raju Hub</option>
+                                    <option value="NTR District">NTR Vijayawada Hub</option>
+                                    <option value="Anakapalli">Anakapalli Medical Hub</option>
                                 </select>
                             </div>
 
@@ -771,15 +832,9 @@
 
             <form id="user-blood-details-form">
                 <div class="modal-body">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="mb-full-name">Full Name <span style="color: var(--primary-crimson);">*</span></label>
-                            <input type="text" id="mb-full-name" required placeholder="e.g. Dr. Sarah Jenkins">
-                        </div>
-                        <div class="form-group">
-                            <label for="mb-user-id">System User ID</label>
-                            <input type="text" id="mb-user-id" readonly style="opacity: 0.7; cursor: not-allowed;" value="USR-ADMIN-01">
-                        </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="mb-full-name">Full Name <span style="color: var(--primary-crimson);">*</span></label>
+                        <input type="text" id="mb-full-name" required placeholder="e.g. Dr. Sarah Jenkins">
                     </div>
 
                     <div class="form-row">
@@ -799,11 +854,32 @@
                         <div class="form-group">
                             <label for="mb-region">Location / Medical Zone <span style="color: var(--primary-crimson);">*</span></label>
                             <select id="mb-region" required class="custom-select">
-                                <option value="Central Metro">Central Metro Zone</option>
-                                <option value="North District">North District Zone</option>
-                                <option value="South Hub">South Hub Zone</option>
-                                <option value="East Coast">East Coast Zone</option>
-                                <option value="West Suburban">West Suburban Zone</option>
+                                <option value="Visakhapatnam">Visakhapatnam District</option>
+                                <option value="Krishna">Krishna (Vijayawada)</option>
+                                <option value="Guntur">Guntur District</option>
+                                <option value="Tirupati">Tirupati District</option>
+                                <option value="Kurnool">Kurnool District</option>
+                                <option value="Nandyal">Nandyal District</option>
+                                <option value="Nellore">SPS Nellore District</option>
+                                <option value="Kakinada">Kakinada District</option>
+                                <option value="East Godavari">East Godavari (Rajahmundry)</option>
+                                <option value="Konaseema">Dr. B.R. Ambedkar Konaseema</option>
+                                <option value="YSR Kadapa">YSR Kadapa District</option>
+                                <option value="Annamayya">Annamayya District</option>
+                                <option value="Chittoor">Chittoor District</option>
+                                <option value="Sri Sathya Sai">Sri Sathya Sai District</option>
+                                <option value="Anantapur">Ananthapuramu District</option>
+                                <option value="Prakasam">Prakasam District</option>
+                                <option value="Bapatla">Bapatla District</option>
+                                <option value="Palnadu">Palnadu District</option>
+                                <option value="Eluru">Eluru District</option>
+                                <option value="West Godavari">West Godavari (Bhimavaram)</option>
+                                <option value="Vizianagaram">Vizianagaram District</option>
+                                <option value="Srikakulam">Srikakulam District</option>
+                                <option value="Parvathipuram">Parvathipuram Manyam</option>
+                                <option value="ASR District">Alluri Sitharama Raju</option>
+                                <option value="NTR District">NTR District</option>
+                                <option value="Anakapalli">Anakapalli District</option>
                             </select>
                         </div>
                     </div>
@@ -862,24 +938,152 @@
         </div>
     </div>
 
-    <!-- GOOGLE OAUTH 2.0 LOGIN MODAL -->
+    <!-- REAL USER ACCOUNT & LOGIN MODAL -->
     <div class="modal-overlay" id="login-modal">
-        <div class="modal-card modal-sm">
+        <div class="modal-card modal-sm" style="max-width: 520px;">
             <div class="modal-header">
                 <div class="modal-title-wrap">
-                    <div class="alert-icon-wrap" style="background: rgba(66,133,244,0.15);">
-                        <i class="ri-google-fill text-amber" style="font-size: 1.4rem;"></i>
+                    <div class="alert-icon-wrap" style="background: rgba(239,68,68,0.15);">
+                        <i class="ri-user-shield-fill text-crimson" style="font-size: 1.4rem;"></i>
                     </div>
                     <div>
-                        <h3>Google Account OAuth 2.0 Sign In</h3>
-                        <p>Authenticate securely using your Google (Gmail) ID</p>
+                        <h3 id="auth-modal-title">Real User Sign In & Account Portal</h3>
+                        <p id="auth-modal-subtitle">Log in or create your personal blood donor account</p>
                     </div>
                 </div>
                 <button class="modal-close" id="close-login-modal-btn"><i class="ri-close-line"></i></button>
             </div>
             
             <div class="modal-body">
-                <button class="btn-google-oauth btn-block" style="padding: 0.85rem; font-size: 0.95rem;" onclick="triggerGoogleOAuthLogin()">
+                <!-- AUTH TAB SELECTOR -->
+                <div style="display: flex; gap: 0.5rem; background: rgba(0,0,0,0.2); padding: 0.3rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
+                    <button class="btn btn-secondary btn-sm flex-1 active" id="tab-btn-login" style="border: none;" onclick="switchAuthTab('login')">Log In</button>
+                    <button class="btn btn-secondary btn-sm flex-1" id="tab-btn-register" style="border: none;" onclick="switchAuthTab('register')">Create Account</button>
+                    <button class="btn btn-secondary btn-sm flex-1" id="tab-btn-forgot" style="border: none;" onclick="switchAuthTab('forgot')">Forgot Password</button>
+                </div>
+
+                <!-- 1. REAL LOGIN FORM (Email or Mobile) -->
+                <form id="real-login-form">
+                    <div class="form-group" style="margin-bottom: 0.8rem;">
+                        <label for="real-login-id">Email Address or Mobile Number <span class="text-crimson">*</span></label>
+                        <input type="text" id="real-login-id" required placeholder="e.g. kalyan.varma@gmail.com or +91 9848012345" class="custom-input">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="real-login-password">Password <span class="text-crimson">*</span></label>
+                        <input type="password" id="real-login-password" required placeholder="••••••••" class="custom-input">
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-block" style="padding: 0.75rem;">
+                        <i class="ri-login-box-line"></i> Log In to My Account
+                    </button>
+                </form>
+
+                <!-- 2. REAL REGISTRATION FORM -->
+                <form id="real-register-form" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reg-name">Full Name <span class="text-crimson">*</span></label>
+                            <input type="text" id="reg-name" required placeholder="Venkatesh Naidu" class="custom-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-email">Email Address <span class="text-crimson">*</span></label>
+                            <input type="email" id="reg-email" required placeholder="venkatesh@gmail.com" class="custom-input">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reg-phone">Mobile Phone <span class="text-crimson">*</span></label>
+                            <input type="tel" id="reg-phone" required placeholder="+91 9848012345" class="custom-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-blood">Blood Group <span class="text-crimson">*</span></label>
+                            <select id="reg-blood" class="custom-select" required>
+                                <option value="O-">O- Negative (Universal)</option>
+                                <option value="O+">O+ Positive</option>
+                                <option value="A+">A+ Positive</option>
+                                <option value="A-">A- Negative</option>
+                                <option value="B+">B+ Positive</option>
+                                <option value="B-">B- Negative</option>
+                                <option value="AB+">AB+ Positive</option>
+                                <option value="AB-">AB- Negative</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reg-password">Password <span class="text-crimson">*</span></label>
+                            <input type="password" id="reg-password" required placeholder="••••••••" class="custom-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-confirm-password">Confirm Password <span class="text-crimson">*</span></label>
+                            <input type="password" id="reg-confirm-password" required placeholder="••••••••" class="custom-input">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reg-district">Andhra Pradesh District <span class="text-crimson">*</span></label>
+                            <select id="reg-district" class="custom-select" required>
+                                <option value="Visakhapatnam">Visakhapatnam</option>
+                                <option value="Krishna">Krishna (Vijayawada)</option>
+                                <option value="Guntur">Guntur</option>
+                                <option value="Tirupati">Tirupati</option>
+                                <option value="Kurnool">Kurnool</option>
+                                <option value="Nandyal">Nandyal</option>
+                                <option value="Nellore">SPS Nellore</option>
+                                <option value="Kakinada">Kakinada</option>
+                                <option value="East Godavari">East Godavari (Rajahmundry)</option>
+                                <option value="Konaseema">Dr. B.R. Ambedkar Konaseema</option>
+                                <option value="YSR Kadapa">YSR Kadapa</option>
+                                <option value="Annamayya">Annamayya</option>
+                                <option value="Chittoor">Chittoor</option>
+                                <option value="Sri Sathya Sai">Sri Sathya Sai</option>
+                                <option value="Anantapur">Ananthapuramu</option>
+                                <option value="Prakasam">Prakasam</option>
+                                <option value="Bapatla">Bapatla</option>
+                                <option value="Palnadu">Palnadu</option>
+                                <option value="Eluru">Eluru</option>
+                                <option value="West Godavari">West Godavari (Bhimavaram)</option>
+                                <option value="Vizianagaram">Vizianagaram</option>
+                                <option value="Srikakulam">Srikakulam</option>
+                                <option value="Parvathipuram">Parvathipuram Manyam</option>
+                                <option value="ASR District">Alluri Sitharama Raju</option>
+                                <option value="NTR District">NTR District</option>
+                                <option value="Anakapalli">Anakapalli</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-city">City / Town</label>
+                            <input type="text" id="reg-city" placeholder="e.g. Visakhapatnam City" class="custom-input">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-block" style="padding: 0.75rem; margin-top: 0.5rem;">
+                        <i class="ri-user-add-line"></i> Create My Real Account & Profile
+                    </button>
+                </form>
+
+                <!-- 3. FORGOT PASSWORD FORM -->
+                <form id="real-forgot-form" style="display: none;">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="forgot-email">Registered Email Address <span class="text-crimson">*</span></label>
+                        <input type="email" id="forgot-email" required placeholder="user@example.com" class="custom-input">
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-block" style="padding: 0.75rem;">
+                        <i class="ri-key-2-line"></i> Issue Password Reset Token
+                    </button>
+                    <div id="reset-token-box" style="display: none; margin-top: 1rem; padding: 0.8rem; background: rgba(255,255,255,0.05); border-radius: var(--radius-md); font-size: 0.85rem;">
+                        <p style="color: var(--color-success); font-weight: 600;">Reset token generated:</p>
+                        <input type="text" id="reset-token-input" readonly class="custom-input" style="margin: 0.4rem 0;">
+                        <input type="password" id="new-password-input" placeholder="New Password" class="custom-input" style="margin-bottom: 0.4rem;">
+                        <button type="button" class="btn btn-secondary btn-block btn-sm" onclick="submitPasswordReset()">Reset Password Now</button>
+                    </div>
+                </form>
+
+                <div style="display: flex; align-items: center; margin: 1rem 0; gap: 0.5rem;">
+                    <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">OR SIGN IN WITH GOOGLE OAUTH</span>
+                    <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
+                </div>
+
+                <button type="button" class="btn-google-oauth btn-block" style="padding: 0.85rem; font-size: 0.95rem;" onclick="triggerGoogleOAuthLogin(event)">
                     <svg class="google-logo-svg" width="20" height="20" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -888,30 +1092,10 @@
                     </svg>
                     <span>Sign in with Google Account</span>
                 </button>
-
-                <div style="display: flex; align-items: center; margin: 1rem 0; gap: 0.5rem;">
-                    <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
-                    <span style="font-size: 0.72rem; color: var(--text-muted);">OR QUICK SELECT PRESET GOOGLE ACCOUNT</span>
-                    <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="login-preset-select">Select Google User Profile:</label>
-                    <select id="login-preset-select" class="custom-select">
-                        <option value="USR-ADMIN-01">Dr. Sarah Jenkins (sarah.jenkins@gmail.com)</option>
-                        <option value="USR-1001">Elena Rostova (elena.rostova@gmail.com - O-)</option>
-                        <option value="USR-1002">Marcus Sterling (marcus.sterling@gmail.com - A+)</option>
-                        <option value="USR-1003">Sophia Chen (sophia.chen@gmail.com - B+)</option>
-                        <option value="USR-1005">Amara Vance (amara.vance@gmail.com - AB+)</option>
-                    </select>
-                </div>
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="cancel-login-btn">Close</button>
-                <button type="button" class="btn btn-danger" onclick="triggerGoogleOAuthLogin()">
-                    <i class="ri-login-box-line"></i> Authenticate Session
-                </button>
             </div>
         </div>
     </div>

@@ -1,6 +1,6 @@
 /* ==========================================================================
-   PULSERED - Andhra Pradesh Location Dataset & Hierarchy Engine
-   Contains all 26 districts of Andhra Pradesh, India with major cities/towns
+   PULSERED - Andhra Pradesh Location Dataset & Government Hospitals Hierarchy Engine
+   Contains all 26 districts of Andhra Pradesh + Government General Hospitals & Blood Banks
    ========================================================================== */
 
 const AP_DISTRICTS = [
@@ -225,6 +225,28 @@ const AP_DISTRICTS = [
     }
 ];
 
+// ANDHRA PRADESH GOVERNMENT GENERAL HOSPITALS & BLOOD BANKS DATASET
+const AP_GOVT_HOSPITALS = [
+    { id: 'ap-gh-01', name: 'King George Hospital (KGH) Government Blood Center', district: 'Visakhapatnam', city: 'Maharani Peta, Visakhapatnam', pincode: '530002', type: 'Teaching Hospital & Regional Blood Center', phone: '+91 891 2564891', unitsAvailable: 340, status: 'Active 24/7' },
+    { id: 'ap-gh-02', name: 'VIMS (Visakha Institute of Medical Sciences) Blood Bank', district: 'Visakhapatnam', city: 'Hanumanthawaka, Visakhapatnam', pincode: '530040', type: 'Super Specialty Government Hospital', phone: '+91 891 2789100', unitsAvailable: 210, status: 'Active 24/7' },
+    { id: 'ap-gh-03', name: 'Government Victoria Hospital for Women & Children', district: 'Visakhapatnam', city: 'Old Town, Visakhapatnam', pincode: '530001', type: 'Government Maternal Hospital', phone: '+91 891 2562233', unitsAvailable: 155, status: 'Active 24/7' },
+    { id: 'ap-gh-04', name: 'New Government General Hospital (GGH) Blood Bank', district: 'Krishna', city: 'Gunadala, Vijayawada', pincode: '520004', type: 'Government General Hospital', phone: '+91 866 2473850', unitsAvailable: 295, status: 'Active 24/7' },
+    { id: 'ap-gh-05', name: 'Old GGH Emergency Blood Storage Unit', district: 'Krishna', city: 'Hanumanpet, Vijayawada', pincode: '520003', type: 'Government Blood Storage Center', phone: '+91 866 2576622', unitsAvailable: 120, status: 'Active 24/7' },
+    { id: 'ap-gh-06', name: 'Government General Hospital (GGH) Regional Blood Bank', district: 'Guntur', city: 'Sambasiva Pet, Guntur', pincode: '522001', type: 'Government Teaching Hospital', phone: '+91 863 2234050', unitsAvailable: 310, status: 'Active 24/7' },
+    { id: 'ap-gh-07', name: 'SVRR Government General Hospital Blood Centre', district: 'Tirupati', city: 'Alipiri Road, Tirupati', pincode: '517507', type: 'Government General Hospital', phone: '+91 877 2287777', unitsAvailable: 380, status: 'Active 24/7' },
+    { id: 'ap-gh-08', name: 'SVIMS (Sri Venkateswara Institute of Medical Sciences)', district: 'Tirupati', city: 'Tirupati City', pincode: '517507', type: 'Super Specialty Government Hospital', phone: '+91 877 2287778', unitsAvailable: 245, status: 'Active 24/7' },
+    { id: 'ap-gh-09', name: 'Government General Hospital (GGH) Regional Blood Bank', district: 'Kurnool', city: 'Budhawara Peta, Kurnool', pincode: '518002', type: 'Government Medical College Hospital', phone: '+91 8518 255200', unitsAvailable: 270, status: 'Active 24/7' },
+    { id: 'ap-gh-10', name: 'Government General Hospital (GGH) Blood Center', district: 'Nellore', city: 'Dargamitta, SPS Nellore', pincode: '524004', type: 'Government General Hospital', phone: '+91 861 2327500', unitsAvailable: 190, status: 'Active 24/7' },
+    { id: 'ap-gh-11', name: 'RIMS (Rajiv Gandhi Institute of Medical Sciences) GGH', district: 'YSR Kadapa', city: 'Putlampalli, Kadapa', pincode: '516002', type: 'Government Medical Institute', phone: '+91 8562 220200', unitsAvailable: 225, status: 'Active 24/7' },
+    { id: 'ap-gh-12', name: 'GGH Rangaraya Medical College Blood Center', district: 'Kakinada', city: 'Pithapuram Road, Kakinada', pincode: '533001', type: 'Government Teaching Hospital', phone: '+91 884 2361250', unitsAvailable: 285, status: 'Active 24/7' },
+    { id: 'ap-gh-13', name: 'Government Headquarters Hospital (GGH) Blood Bank', district: 'East Godavari', city: 'Rajamahendravaram', pincode: '533101', type: 'District Government Hospital', phone: '+91 883 2462200', unitsAvailable: 200, status: 'Active 24/7' },
+    { id: 'ap-gh-14', name: 'Government General Hospital (GGH) Blood Bank', district: 'Anantapur', city: 'Rahamat Nagar, Anantapur', pincode: '515001', type: 'Government Medical College Hospital', phone: '+91 8554 274000', unitsAvailable: 175, status: 'Active 24/7' },
+    { id: 'ap-gh-15', name: 'Government General Hospital (GGH) Blood Bank', district: 'Eluru', city: 'Sanivarapupeta, Eluru', pincode: '534001', type: 'District Government Hospital', phone: '+91 8812 230400', unitsAvailable: 160, status: 'Active 24/7' },
+    { id: 'ap-gh-16', name: 'RIMS Government General Hospital Blood Bank', district: 'Srikakulam', city: 'Balaga, Srikakulam', pincode: '532001', type: 'Government Medical Institute', phone: '+91 8942 222400', unitsAvailable: 140, status: 'Active 24/7' },
+    { id: 'ap-gh-17', name: 'Government General Hospital (GGH) Blood Bank', district: 'Vizianagaram', city: 'Cantonment, Vizianagaram', pincode: '535003', type: 'Government District Hospital', phone: '+91 8922 272500', unitsAvailable: 150, status: 'Active 24/7' },
+    { id: 'ap-gh-18', name: 'Government General Hospital (GGH) Blood Bank', district: 'Prakasam', city: 'Rangarayudu Nagar, Ongole', pincode: '523001', type: 'Government Teaching Hospital', phone: '+91 8592 233200', unitsAvailable: 180, status: 'Active 24/7' }
+];
+
 function getDistricts() {
     return AP_DISTRICTS.map(d => d.district);
 }
@@ -232,6 +254,11 @@ function getDistricts() {
 function getCitiesByDistrict(districtName) {
     const dist = AP_DISTRICTS.find(d => d.district.toLowerCase() === districtName.toLowerCase());
     return dist ? dist.cities : [];
+}
+
+function getGovtHospitals(districtName = null) {
+    if (!districtName || districtName.toLowerCase() === 'all') return AP_GOVT_HOSPITALS;
+    return AP_GOVT_HOSPITALS.filter(h => h.district.toLowerCase() === districtName.toLowerCase());
 }
 
 function getAllLocationsFlat() {
@@ -251,7 +278,9 @@ function getAllLocationsFlat() {
 
 module.exports = {
     AP_DISTRICTS,
+    AP_GOVT_HOSPITALS,
     getDistricts,
     getCitiesByDistrict,
+    getGovtHospitals,
     getAllLocationsFlat
 };

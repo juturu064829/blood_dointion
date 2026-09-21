@@ -28,21 +28,42 @@ const MOCK_AVATARS = [
 ];
 
 let INITIAL_DONORS_DATA = [
-    { id: 1, userId: 'USR-1001', name: 'Elena Rostova', bloodType: 'O-', distanceKm: 1.4, region: 'Central Metro', ready: 'Immediate', verified: true, avatar: MOCK_AVATARS[0], phone: '+1 (555) 234-5678', email: 'elena.rostova@gmail.com', googleId: '109823471092834710928', donationsCount: 14, lastDonated: '4 months ago', rating: '4.9 ★', mapX: 420, mapY: 180 },
-    { id: 2, userId: 'USR-1002', name: 'Marcus Sterling', bloodType: 'A+', distanceKm: 2.8, region: 'Central Metro', ready: 'Immediate', verified: true, avatar: MOCK_AVATARS[1], phone: '+1 (555) 876-5432', email: 'marcus.sterling@gmail.com', googleId: '109823471092834710929', donationsCount: 8, lastDonated: '6 months ago', rating: '4.8 ★', mapX: 360, mapY: 230 },
-    { id: 3, userId: 'USR-1003', name: 'Sophia Chen', bloodType: 'B+', distanceKm: 3.5, region: 'Central Metro', ready: 'Today', verified: true, avatar: MOCK_AVATARS[2], phone: '+1 (555) 345-6789', email: 'sophia.chen@gmail.com', googleId: '109823471092834710930', donationsCount: 22, lastDonated: '5 months ago', rating: '5.0 ★', mapX: 470, mapY: 140 },
-    { id: 4, userId: 'USR-1004', name: 'David Miller', bloodType: 'O+', distanceKm: 4.1, region: 'Central Metro', ready: 'Immediate', verified: false, avatar: MOCK_AVATARS[3], phone: '+1 (555) 987-6543', email: 'david.m@gmail.com', googleId: '109823471092834710931', donationsCount: 5, lastDonated: '3 months ago', rating: '4.7 ★', mapX: 310, mapY: 280 },
-    { id: 5, userId: 'USR-1005', name: 'Amara Vance', bloodType: 'AB+', distanceKm: 4.8, region: 'Central Metro', ready: 'Immediate', verified: true, avatar: MOCK_AVATARS[4], phone: '+1 (555) 456-7890', email: 'amara.vance@gmail.com', googleId: '109823471092834710932', donationsCount: 19, lastDonated: '7 months ago', rating: '4.9 ★', mapX: 440, mapY: 260 }
+    { id: 1, userId: 'USR-1001', name: 'Elena Rostova', bloodType: 'O-', distanceKm: 1.4, region: 'Visakhapatnam', ready: 'Immediate', verified: true, avatar: MOCK_AVATARS[0], phone: '+91 891 234-5678', email: 'elena.rostova@gmail.com', googleId: '109823471092834710928', donationsCount: 14, lastDonated: '4 months ago', rating: '4.9 ★', hospital: 'King George Hospital (KGH)', mapX: 420, mapY: 180 },
+    { id: 2, userId: 'USR-1002', name: 'Marcus Sterling', bloodType: 'A+', distanceKm: 2.8, region: 'Visakhapatnam', ready: 'Immediate', verified: true, avatar: MOCK_AVATARS[1], phone: '+91 891 876-5432', email: 'marcus.sterling@gmail.com', googleId: '109823471092834710929', donationsCount: 8, lastDonated: '6 months ago', rating: '4.8 ★', hospital: 'Visakha Institute of Medical Sciences (VIMS)', mapX: 360, mapY: 230 },
+    { id: 3, userId: 'USR-1003', name: 'Sophia Chen', bloodType: 'B+', distanceKm: 3.5, region: 'Krishna', ready: 'Today', verified: true, avatar: MOCK_AVATARS[2], phone: '+91 866 345-6789', email: 'sophia.chen@gmail.com', googleId: '109823471092834710930', donationsCount: 22, lastDonated: '5 months ago', rating: '5.0 ★', hospital: 'GGH Vijayawada (Government General Hospital)', mapX: 470, mapY: 140 },
+    { id: 4, userId: 'USR-1004', name: 'David Miller', bloodType: 'O+', distanceKm: 4.1, region: 'Guntur', ready: 'Immediate', verified: false, avatar: MOCK_AVATARS[3], phone: '+91 863 987-6543', email: 'david.m@gmail.com', googleId: '109823471092834710931', donationsCount: 5, lastDonated: '3 months ago', rating: '4.7 ★', hospital: 'Government General Hospital (GGH Guntur)', mapX: 310, mapY: 280 },
+    { id: 5, userId: 'USR-1005', name: 'Amara Vance', bloodType: 'AB+', distanceKm: 4.8, region: 'Tirupati', ready: 'Immediate', verified: true, avatar: MOCK_AVATARS[4], phone: '+91 877 456-7890', email: 'amara.vance@gmail.com', googleId: '109823471092834710932', donationsCount: 19, lastDonated: '7 months ago', rating: '4.9 ★', hospital: 'SVRR Government General Hospital Tirupati', mapX: 440, mapY: 260 }
 ];
 
 let DONORS_DATA = [...INITIAL_DONORS_DATA];
 
 let LOCATION_INVENTORY = {
-    'Central Metro': { 'O-': 12, 'O+': 45, 'A+': 38, 'A-': 15, 'B+': 30, 'B-': 8, 'AB+': 22, 'AB-': 4 },
-    'North District': { 'O-': 6, 'O+': 28, 'A+': 20, 'A-': 8, 'B+': 18, 'B-': 3, 'AB+': 14, 'AB-': 2 },
-    'South Hub': { 'O-': 9, 'O+': 34, 'A+': 29, 'A-': 12, 'B+': 24, 'B-': 7, 'AB+': 16, 'AB-': 5 },
-    'East Coast': { 'O-': 14, 'O+': 50, 'A+': 42, 'A-': 18, 'B+': 35, 'B-': 11, 'AB+': 26, 'AB-': 8 },
-    'West Suburban': { 'O-': 5, 'O+': 22, 'A+': 19, 'A-': 6, 'B+': 15, 'B-': 4, 'AB+': 10, 'AB-': 1 }
+    'Visakhapatnam': { 'O-': 18, 'O+': 52, 'A+': 44, 'A-': 16, 'B+': 36, 'B-': 9, 'AB+': 28, 'AB-': 5 },
+    'Krishna': { 'O-': 14, 'O+': 48, 'A+': 39, 'A-': 12, 'B+': 32, 'B-': 7, 'AB+': 22, 'AB-': 4 },
+    'Guntur': { 'O-': 11, 'O+': 42, 'A+': 35, 'A-': 10, 'B+': 28, 'B-': 6, 'AB+': 19, 'AB-': 3 },
+    'Tirupati': { 'O-': 16, 'O+': 55, 'A+': 46, 'A-': 15, 'B+': 38, 'B-': 10, 'AB+': 25, 'AB-': 6 },
+    'Kurnool': { 'O-': 9, 'O+': 34, 'A+': 29, 'A-': 8, 'B+': 24, 'B-': 5, 'AB+': 16, 'AB-': 2 },
+    'Nandyal': { 'O-': 7, 'O+': 28, 'A+': 22, 'A-': 6, 'B+': 18, 'B-': 4, 'AB+': 12, 'AB-': 2 },
+    'Nellore': { 'O-': 10, 'O+': 38, 'A+': 31, 'A-': 9, 'B+': 26, 'B-': 6, 'AB+': 17, 'AB-': 3 },
+    'Kakinada': { 'O-': 13, 'O+': 45, 'A+': 37, 'A-': 11, 'B+': 30, 'B-': 8, 'AB+': 20, 'AB-': 4 },
+    'East Godavari': { 'O-': 12, 'O+': 40, 'A+': 33, 'A-': 10, 'B+': 27, 'B-': 7, 'AB+': 18, 'AB-': 3 },
+    'Konaseema': { 'O-': 10, 'O+': 35, 'A+': 28, 'A-': 8, 'B+': 22, 'B-': 5, 'AB+': 14, 'AB-': 2 },
+    'YSR Kadapa': { 'O-': 8, 'O+': 32, 'A+': 26, 'A-': 7, 'B+': 21, 'B-': 5, 'AB+': 14, 'AB-': 2 },
+    'Annamayya': { 'O-': 7, 'O+': 27, 'A+': 21, 'A-': 5, 'B+': 17, 'B-': 4, 'AB+': 11, 'AB-': 2 },
+    'Chittoor': { 'O-': 10, 'O+': 36, 'A+': 30, 'A-': 8, 'B+': 25, 'B-': 6, 'AB+': 15, 'AB-': 3 },
+    'Sri Sathya Sai': { 'O-': 8, 'O+': 29, 'A+': 23, 'A-': 6, 'B+': 19, 'B-': 4, 'AB+': 12, 'AB-': 2 },
+    'Anantapur': { 'O-': 8, 'O+': 30, 'A+': 25, 'A-': 6, 'B+': 20, 'B-': 4, 'AB+': 13, 'AB-': 2 },
+    'Prakasam': { 'O-': 11, 'O+': 39, 'A+': 32, 'A-': 9, 'B+': 25, 'B-': 6, 'AB+': 16, 'AB-': 3 },
+    'Bapatla': { 'O-': 9, 'O+': 31, 'A+': 24, 'A-': 7, 'B+': 20, 'B-': 5, 'AB+': 13, 'AB-': 2 },
+    'Palnadu': { 'O-': 8, 'O+': 30, 'A+': 23, 'A-': 6, 'B+': 19, 'B-': 4, 'AB+': 12, 'AB-': 2 },
+    'Eluru': { 'O-': 10, 'O+': 36, 'A+': 29, 'A-': 8, 'B+': 23, 'B-': 5, 'AB+': 15, 'AB-': 3 },
+    'West Godavari': { 'O-': 12, 'O+': 41, 'A+': 34, 'A-': 10, 'B+': 27, 'B-': 7, 'AB+': 18, 'AB-': 3 },
+    'Vizianagaram': { 'O-': 6, 'O+': 25, 'A+': 20, 'A-': 5, 'B+': 16, 'B-': 3, 'AB+': 10, 'AB-': 1 },
+    'Srikakulam': { 'O-': 5, 'O+': 22, 'A+': 18, 'A-': 4, 'B+': 14, 'B-': 3, 'AB+': 9, 'AB-': 1 },
+    'Parvathipuram': { 'O-': 5, 'O+': 20, 'A+': 16, 'A-': 4, 'B+': 13, 'B-': 3, 'AB+': 8, 'AB-': 1 },
+    'ASR District': { 'O-': 6, 'O+': 21, 'A+': 17, 'A-': 4, 'B+': 14, 'B-': 3, 'AB+': 9, 'AB-': 1 },
+    'NTR District': { 'O-': 15, 'O+': 49, 'A+': 40, 'A-': 13, 'B+': 33, 'B-': 8, 'AB+': 23, 'AB-': 4 },
+    'Anakapalli': { 'O-': 9, 'O+': 33, 'A+': 26, 'A-': 7, 'B+': 21, 'B-': 5, 'AB+': 14, 'AB-': 2 }
 };
 
 let BLOOD_BANKS_STOCK = [
@@ -57,9 +78,16 @@ let BLOOD_BANKS_STOCK = [
 ];
 
 const PARTNER_BANKS = [
-    { name: 'Metro Central Blood Bank Repository', region: 'Central Metro', distance: '1.2 km', totalUnits: 214, phone: '+1 (555) 900-1122' },
-    { name: 'St. Jude Emergency Blood Reserve', region: 'North District', distance: '6.4 km', totalUnits: 101, phone: '+1 (555) 900-3344' },
-    { name: 'Southside Trauma Center Supply Hub', region: 'South Hub', distance: '8.9 km', totalUnits: 147, phone: '+1 (555) 900-5566' }
+    { name: 'King George Hospital (KGH) Government Blood Center', region: 'Visakhapatnam', distance: 'Maharani Peta', totalUnits: 340, phone: '+91 891 2564891', type: 'Government Teaching Hospital' },
+    { name: 'New Government General Hospital (GGH) Blood Bank', region: 'Krishna (Vijayawada)', distance: 'Gunadala', totalUnits: 295, phone: '+91 866 2473850', type: 'Government General Hospital' },
+    { name: 'Government General Hospital (GGH) Regional Blood Bank', region: 'Guntur', distance: 'Sambasiva Pet', totalUnits: 310, phone: '+91 863 2234050', type: 'Government Teaching Hospital' },
+    { name: 'SVRR Government General Hospital Blood Centre', region: 'Tirupati', distance: 'Alipiri Road', totalUnits: 380, phone: '+91 877 2287777', type: 'Government General Hospital' },
+    { name: 'SVIMS Super Specialty Government Hospital', region: 'Tirupati', distance: 'Tirupati City', totalUnits: 245, phone: '+91 877 2287778', type: 'Super Specialty Hospital' },
+    { name: 'Government General Hospital (GGH) Regional Blood Bank', region: 'Kurnool', distance: 'Budhawara Peta', totalUnits: 270, phone: '+91 8518 255200', type: 'Medical College Hospital' },
+    { name: 'Government General Hospital (GGH) Blood Center', region: 'SPS Nellore', distance: 'Dargamitta', totalUnits: 190, phone: '+91 861 2327500', type: 'Government General Hospital' },
+    { name: 'RIMS (Rajiv Gandhi Institute of Medical Sciences) GGH', region: 'YSR Kadapa', distance: 'Putlampalli', totalUnits: 225, phone: '+91 8562 220200', type: 'Government Medical Institute' },
+    { name: 'GGH Rangaraya Medical College Blood Center', region: 'Kakinada', distance: 'Pithapuram Road', totalUnits: 285, phone: '+91 884 2361250', type: 'Teaching Hospital' },
+    { name: 'VIMS (Visakha Institute of Medical Sciences)', region: 'Visakhapatnam', distance: 'Hanumanthawaka', totalUnits: 210, phone: '+91 891 2789100', type: 'Super Specialty Hospital' }
 ];
 
 let GOOGLE_SHEET_LEDGER = [
@@ -74,7 +102,7 @@ let currentUser = {
     name: 'Dr. Sarah Jenkins',
     role: 'Metro Health ER Coordinator',
     bloodType: 'O-',
-    region: 'Central Metro',
+    region: 'Visakhapatnam',
     phone: '+1 (555) 019-8877',
     email: 'sarah.jenkins@gmail.com',
     ready: 'Immediate',
@@ -87,8 +115,15 @@ let currentUser = {
 /* ==========================================================================
    2.5 SECURE BACKEND API INTEGRATION ENGINE (JWT + REST DB FETCH)
    ========================================================================== */
+const getApiBaseUrl = () => {
+    if (typeof window !== 'undefined' && window.location && window.location.origin && !window.location.origin.startsWith('file:')) {
+        return `${window.location.origin}/api/v1`;
+    }
+    return 'http://localhost:4000/api/v1';
+};
+
 const BackendAPI = {
-    BASE_URL: 'http://localhost:4000/api',
+    BASE_URL: getApiBaseUrl(),
     isOnline: false,
 
     getHeaders() {
@@ -96,7 +131,7 @@ const BackendAPI = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         };
-        if (currentUser && currentUser.jwtToken) {
+        if (currentUser && currentUser.jwtToken && currentUser.jwtToken !== 'simulated_jwt') {
             headers['Authorization'] = `Bearer ${currentUser.jwtToken}`;
         }
         return headers;
@@ -307,8 +342,11 @@ const WebSocketDonorChatEngine = {
     },
 
     openChat(donorId) {
-        const donor = DONORS_DATA.find(d => d.id === donorId);
-        if (!donor) return;
+        const donor = DONORS_DATA.find(d => d.id == donorId || d.userId === donorId);
+        if (!donor) {
+            console.warn(`[WebSocketChat] Donor with ID '${donorId}' not found.`);
+            return;
+        }
 
         this.activeDonor = donor;
         this.messages = [
@@ -316,13 +354,22 @@ const WebSocketDonorChatEngine = {
             { sender: 'donor', text: `Hi! I am ${donor.name} (${donor.bloodType} blood donor in ${donor.region}). How can I assist with your emergency request?`, time: this.getTimeStr() }
         ];
 
-        document.getElementById('chat-donor-avatar').src = donor.avatar;
-        document.getElementById('chat-donor-name').childNodes[0].nodeValue = donor.name + ' ';
-        document.getElementById('chat-donor-blood').textContent = donor.bloodType;
-        document.getElementById('chat-donor-meta').textContent = `${donor.userId} • ${donor.region} (${donor.distanceKm} km away)`;
+        const avatarEl = document.getElementById('chat-donor-avatar');
+        if (avatarEl) avatarEl.src = donor.avatar;
+
+        const nameEl = document.getElementById('chat-donor-name');
+        if (nameEl && nameEl.childNodes.length > 0) {
+            nameEl.childNodes[0].nodeValue = donor.name + ' ';
+        }
+
+        const bloodEl = document.getElementById('chat-donor-blood');
+        if (bloodEl) bloodEl.textContent = donor.bloodType;
+
+        const metaEl = document.getElementById('chat-donor-meta');
+        if (metaEl) metaEl.textContent = `${donor.userId} • ${donor.region} (${donor.distanceKm} km away)`;
 
         const modal = document.getElementById('donor-chat-modal');
-        modal.classList.add('active');
+        if (modal) modal.classList.add('active');
 
         this.renderMessages();
     },
@@ -398,12 +445,12 @@ const state = {
     searchQuery: '',
     availability: 'all',
     maxDistance: 100,
-    region: 'Central Metro',
+    region: 'Visakhapatnam',
     currentTab: 'dashboard',
     activeView: 'grid',
     patientGroupForABO: 'O-',
     sortDonorsBy: 'distance',
-    locationTabRegion: 'Central Metro',
+    locationTabRegion: 'Visakhapatnam',
     locationTabSortMode: 'units-desc',
     activeSortedUserId: 'USR-1001',
     gformAction: 'donor'
@@ -475,9 +522,10 @@ function setupUserBloodDetailsForm() {
 
     const openModal = () => {
         document.getElementById('mb-full-name').value = currentUser.name;
-        document.getElementById('mb-user-id').value = currentUser.userId;
+        const mbUserIdEl = document.getElementById('mb-user-id');
+        if (mbUserIdEl) mbUserIdEl.value = currentUser.userId;
         document.getElementById('mb-blood-group').value = currentUser.bloodType || 'O-';
-        document.getElementById('mb-region').value = currentUser.region || 'Central Metro';
+        document.getElementById('mb-region').value = currentUser.region || 'Visakhapatnam';
         document.getElementById('mb-phone').value = currentUser.phone || '+1 (555) 019-8877';
         document.getElementById('mb-email').value = currentUser.email || `${currentUser.name.toLowerCase().replace(/\s+/g,'')}@gmail.com`;
         document.getElementById('mb-readiness').value = currentUser.ready || 'Immediate';
@@ -586,19 +634,25 @@ function setupGoogleOAuthSystem() {
     updateActiveUserUI();
 }
 
-window.triggerGoogleOAuthLogin = function() {
+window.triggerGoogleOAuthLogin = function(e) {
+    if (e && typeof e.preventDefault === 'function') {
+        e.preventDefault();
+    }
     const presetSelect = document.getElementById('login-preset-select');
-    const selectedUserId = presetSelect.value || 'USR-ADMIN-01';
+    const selectedUserId = (presetSelect && presetSelect.value) ? presetSelect.value : 'USR-ADMIN-01';
 
-    let user = DONORS_DATA.find(d => d.userId === selectedUserId);
-    if (!user && selectedUserId === 'USR-ADMIN-01') {
+    let user = (typeof DONORS_DATA !== 'undefined' && Array.isArray(DONORS_DATA)) 
+        ? DONORS_DATA.find(d => d.userId === selectedUserId) 
+        : null;
+
+    if (!user) {
         user = {
-            userId: 'USR-ADMIN-01',
+            userId: selectedUserId || 'USR-ADMIN-01',
             googleId: '109823471092834710900',
             name: 'Dr. Sarah Jenkins',
             role: 'Metro Health ER Coordinator',
             bloodType: 'O-',
-            region: 'Central Metro',
+            region: 'Visakhapatnam',
             phone: '+1 (555) 019-8877',
             email: 'sarah.jenkins@gmail.com',
             ready: 'Immediate',
@@ -612,26 +666,37 @@ window.triggerGoogleOAuthLogin = function() {
 
 function authenticateGoogleSession(googleUser) {
     currentUser = {
-        userId: googleUser.userId || `USR-GGL-${Math.floor(1000 + Math.random() * 9000)}`,
-        googleId: googleUser.googleId || `10982347${Math.floor(100000000 + Math.random() * 900000000)}`,
-        name: googleUser.name,
-        role: googleUser.role || 'Google Verified Member',
-        bloodType: googleUser.bloodType || 'O-',
-        region: googleUser.region || 'Central Metro',
-        phone: googleUser.phone || '+1 (555) 019-8877',
-        email: googleUser.email || `${googleUser.name.toLowerCase().replace(/\s+/g,'')}@gmail.com`,
-        ready: googleUser.ready || 'Immediate',
-        donationsCount: googleUser.donationsCount || 5,
-        avatar: googleUser.avatar || MOCK_AVATARS[0],
-        jwtToken: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI${googleUser.userId}IiwiaWF0IjoxNjkwMDAwMDB9.simulated_google_oauth_jwt`
+        userId: googleUser?.userId || `USR-GGL-${Math.floor(1000 + Math.random() * 9000)}`,
+        googleId: googleUser?.googleId || `10982347${Math.floor(100000000 + Math.random() * 900000000)}`,
+        name: googleUser?.name || 'Dr. Sarah Jenkins',
+        role: googleUser?.role || 'Google Verified Member',
+        bloodType: googleUser?.bloodType || 'O-',
+        region: googleUser?.region || 'Visakhapatnam',
+        phone: googleUser?.phone || '+1 (555) 019-8877',
+        email: googleUser?.email || `${(googleUser?.name || 'Dr. Sarah Jenkins').toLowerCase().replace(/\s+/g,'')}@gmail.com`,
+        ready: googleUser?.ready || 'Immediate',
+        donationsCount: googleUser?.donationsCount || 5,
+        avatar: googleUser?.avatar || (typeof MOCK_AVATARS !== 'undefined' && MOCK_AVATARS[0] ? MOCK_AVATARS[0] : 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=100&auto=format&fit=crop&q=80'),
+        jwtToken: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI${googleUser?.userId || 'USR-ADMIN-01'}IiwiaWF0IjoxNjkwMDAwMDB9.simulated_google_oauth_jwt`
     };
 
-    updateActiveUserUI();
-    document.getElementById('login-modal').classList.remove('active');
+    if (typeof updateActiveUserUI === 'function') {
+        updateActiveUserUI();
+    }
+    const loginModal = document.getElementById('login-modal');
+    if (loginModal) {
+        loginModal.classList.remove('active');
+    }
 
-    CacheManager.saveState();
-    showToast(`Google OAuth 2.0 Success: Authenticated as ${currentUser.name}`, 'success');
-    lookupAndSortByUser(currentUser.userId);
+    if (typeof CacheManager !== 'undefined' && CacheManager.saveState) {
+        CacheManager.saveState();
+    }
+    if (typeof showToast === 'function') {
+        showToast(`Google OAuth 2.0 Success: Authenticated as ${currentUser.name}`, 'success');
+    }
+    if (typeof lookupAndSortByUser === 'function') {
+        lookupAndSortByUser(currentUser.userId);
+    }
 }
 
 function updateActiveUserUI() {
@@ -698,7 +763,7 @@ window.logoutUserSession = function() {
         name: 'Guest User',
         role: 'Not Authenticated',
         bloodType: 'O-',
-        region: 'Central Metro',
+        region: 'Visakhapatnam',
         email: 'guest@healthnet.org',
         avatar: MOCK_AVATARS[0],
         jwtToken: null
@@ -760,10 +825,32 @@ function setupGoogleFormSync() {
                     <div class="form-group">
                         <label>Location Region Zone</label>
                         <select id="g-donor-region" class="custom-select">
-                            <option value="Central Metro">Central Metro Zone</option>
-                            <option value="North District">North District Zone</option>
-                            <option value="South Hub">South Hub Zone</option>
-                            <option value="East Coast">East Coast Zone</option>
+                            <option value="Visakhapatnam">Visakhapatnam District</option>
+                            <option value="Krishna">Krishna (Vijayawada)</option>
+                            <option value="Guntur">Guntur District</option>
+                            <option value="Tirupati">Tirupati District</option>
+                            <option value="Kurnool">Kurnool District</option>
+                            <option value="Nandyal">Nandyal District</option>
+                            <option value="Nellore">SPS Nellore District</option>
+                            <option value="Kakinada">Kakinada District</option>
+                            <option value="East Godavari">East Godavari (Rajahmundry)</option>
+                            <option value="Konaseema">Dr. B.R. Ambedkar Konaseema</option>
+                            <option value="YSR Kadapa">YSR Kadapa District</option>
+                            <option value="Annamayya">Annamayya District</option>
+                            <option value="Chittoor">Chittoor District</option>
+                            <option value="Sri Sathya Sai">Sri Sathya Sai District</option>
+                            <option value="Anantapur">Ananthapuramu District</option>
+                            <option value="Prakasam">Prakasam District</option>
+                            <option value="Bapatla">Bapatla District</option>
+                            <option value="Palnadu">Palnadu District</option>
+                            <option value="Eluru">Eluru District</option>
+                            <option value="West Godavari">West Godavari (Bhimavaram)</option>
+                            <option value="Vizianagaram">Vizianagaram District</option>
+                            <option value="Srikakulam">Srikakulam District</option>
+                            <option value="Parvathipuram">Parvathipuram Manyam</option>
+                            <option value="ASR District">Alluri Sitharama Raju</option>
+                            <option value="NTR District">NTR District</option>
+                            <option value="Anakapalli">Anakapalli District</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -805,9 +892,32 @@ function setupGoogleFormSync() {
                     <div class="form-group">
                         <label>Location Zone</label>
                         <select id="g-stock-region" class="custom-select">
-                            <option value="Central Metro">Central Metro Zone</option>
-                            <option value="North District">North District Zone</option>
-                            <option value="South Hub">South Hub Zone</option>
+                            <option value="Visakhapatnam">Visakhapatnam District</option>
+                            <option value="Krishna">Krishna (Vijayawada)</option>
+                            <option value="Guntur">Guntur District</option>
+                            <option value="Tirupati">Tirupati District</option>
+                            <option value="Kurnool">Kurnool District</option>
+                            <option value="Nandyal">Nandyal District</option>
+                            <option value="Nellore">SPS Nellore District</option>
+                            <option value="Kakinada">Kakinada District</option>
+                            <option value="East Godavari">East Godavari (Rajahmundry)</option>
+                            <option value="Konaseema">Dr. B.R. Ambedkar Konaseema</option>
+                            <option value="YSR Kadapa">YSR Kadapa District</option>
+                            <option value="Annamayya">Annamayya District</option>
+                            <option value="Chittoor">Chittoor District</option>
+                            <option value="Sri Sathya Sai">Sri Sathya Sai District</option>
+                            <option value="Anantapur">Ananthapuramu District</option>
+                            <option value="Prakasam">Prakasam District</option>
+                            <option value="Bapatla">Bapatla District</option>
+                            <option value="Palnadu">Palnadu District</option>
+                            <option value="Eluru">Eluru District</option>
+                            <option value="West Godavari">West Godavari (Bhimavaram)</option>
+                            <option value="Vizianagaram">Vizianagaram District</option>
+                            <option value="Srikakulam">Srikakulam District</option>
+                            <option value="Parvathipuram">Parvathipuram Manyam</option>
+                            <option value="ASR District">Alluri Sitharama Raju</option>
+                            <option value="NTR District">NTR District</option>
+                            <option value="Anakapalli">Anakapalli District</option>
                         </select>
                     </div>
                 </div>
@@ -978,10 +1088,37 @@ function renderGoogleSheetLedger() {
 /* ==========================================================================
    NAVIGATION & TABS
    ========================================================================== */
-function setupNavigation() {
+window.switchTab = function(tabId) {
+    if (!tabId) return;
     const navLinks = document.querySelectorAll('.nav-link');
     const tabPanes = document.querySelectorAll('.tab-pane');
     const pageTitle = document.getElementById('page-title');
+
+    navLinks.forEach(l => l.classList.remove('active'));
+    tabPanes.forEach(pane => pane.classList.remove('active'));
+
+    const targetLink = document.querySelector(`.nav-link[data-tab="${tabId}"]`);
+    if (targetLink) targetLink.classList.add('active');
+
+    const targetPane = document.getElementById(`tab-${tabId}`);
+    if (targetPane) targetPane.classList.add('active');
+
+    state.currentTab = tabId;
+
+    if (pageTitle) {
+        if (tabId === 'dashboard') pageTitle.textContent = 'Blood Emergency Dashboard';
+        if (tabId === 'google-form-sync') pageTitle.textContent = 'Google Forms & Sheet Live Update Sync';
+        if (tabId === 'user-id-sort') pageTitle.textContent = 'User ID Blood Group Sorting Engine';
+        if (tabId === 'location-finder') pageTitle.textContent = 'Location Blood Stock & Donor Sort';
+        if (tabId === 'donors') pageTitle.textContent = 'Active Donor Directory';
+        if (tabId === 'banks') pageTitle.textContent = 'Blood Banks & Repositories';
+        if (tabId === 'compatibility') pageTitle.textContent = 'ABO Transfusion Compatibility Matrix';
+        if (tabId === 'analytics') pageTitle.textContent = 'Metro Blood Reserve Radar';
+    }
+};
+
+function setupNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link');
 
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
@@ -989,25 +1126,7 @@ function setupNavigation() {
 
             e.preventDefault();
             const tabId = link.getAttribute('data-tab');
-            if (!tabId) return;
-
-            navLinks.forEach(l => l.classList.remove('active'));
-            tabPanes.forEach(pane => pane.classList.remove('active'));
-
-            link.classList.add('active');
-            const targetPane = document.getElementById(`tab-${tabId}`);
-            if (targetPane) targetPane.classList.add('active');
-
-            state.currentTab = tabId;
-
-            if (tabId === 'dashboard') pageTitle.textContent = 'Blood Emergency Dashboard';
-            if (tabId === 'google-form-sync') pageTitle.textContent = 'Google Forms & Sheet Live Update Sync';
-            if (tabId === 'user-id-sort') pageTitle.textContent = 'User ID Blood Group Sorting Engine';
-            if (tabId === 'location-finder') pageTitle.textContent = 'Location Blood Stock & Donor Sort';
-            if (tabId === 'donors') pageTitle.textContent = 'Active Donor Directory';
-            if (tabId === 'banks') pageTitle.textContent = 'Blood Banks & Repositories';
-            if (tabId === 'compatibility') pageTitle.textContent = 'ABO Transfusion Compatibility Matrix';
-            if (tabId === 'analytics') pageTitle.textContent = 'Metro Blood Reserve Radar';
+            if (tabId) window.switchTab(tabId);
         });
     });
 
@@ -1039,11 +1158,18 @@ function setupNavigation() {
 function setupFilters() {
     const bloodPills = document.querySelectorAll('.blood-pill');
     const searchInput = document.getElementById('donor-search-input');
+    const donorSearchClearBtn = document.getElementById('donorSearchInputClear');
     const sortSelect = document.getElementById('sort-donors-by');
     const availSelect = document.getElementById('availability-filter');
     const distSelect = document.getElementById('max-distance-filter');
     const citySelect = document.getElementById('city-selector');
     const clearBtn = document.getElementById('clear-filters');
+
+    function updateDonorSearchClearBtn() {
+        if (donorSearchClearBtn) {
+            donorSearchClearBtn.style.display = searchInput && searchInput.value ? 'flex' : 'none';
+        }
+    }
 
     bloodPills.forEach(pill => {
         pill.addEventListener('click', () => {
@@ -1054,10 +1180,31 @@ function setupFilters() {
         });
     });
 
-    searchInput.addEventListener('input', (e) => {
-        state.searchQuery = e.target.value.toLowerCase();
-        filterAndRenderDonors();
-    });
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const rawVal = e.target.value;
+            state.searchQuery = rawVal.toLowerCase();
+            updateDonorSearchClearBtn();
+            const topSearchInput = document.getElementById('searchInput');
+            const topSearchClearBtn = document.getElementById('searchInputClear');
+            if (topSearchInput) topSearchInput.value = rawVal;
+            if (topSearchClearBtn) topSearchClearBtn.style.display = rawVal ? 'flex' : 'none';
+            filterAndRenderDonors();
+        });
+    }
+
+    if (donorSearchClearBtn) {
+        donorSearchClearBtn.addEventListener('click', () => {
+            if (searchInput) searchInput.value = '';
+            const topSearchInput = document.getElementById('searchInput');
+            const topSearchClearBtn = document.getElementById('searchInputClear');
+            if (topSearchInput) topSearchInput.value = '';
+            if (topSearchClearBtn) topSearchClearBtn.style.display = 'none';
+            state.searchQuery = '';
+            updateDonorSearchClearBtn();
+            filterAndRenderDonors();
+        });
+    }
 
     sortSelect.addEventListener('change', (e) => {
         state.sortDonorsBy = e.target.value;
@@ -1087,7 +1234,12 @@ function setupFilters() {
         state.availability = 'all';
         state.maxDistance = 100;
         state.sortDonorsBy = 'distance';
-        searchInput.value = '';
+        if (searchInput) searchInput.value = '';
+        const topSearchInput = document.getElementById('searchInput');
+        const topSearchClearBtn = document.getElementById('searchInputClear');
+        if (topSearchInput) topSearchInput.value = '';
+        if (topSearchClearBtn) topSearchClearBtn.style.display = 'none';
+        updateDonorSearchClearBtn();
         sortSelect.value = 'distance';
         availSelect.value = 'all';
         distSelect.value = '100';
@@ -1122,8 +1274,9 @@ function getFilteredDonors() {
             const matchUserId = donor.userId.toLowerCase().includes(state.searchQuery);
             const matchBlood = donor.bloodType.toLowerCase().includes(state.searchQuery);
             const matchRegion = donor.region.toLowerCase().includes(state.searchQuery);
-            const matchPhone = donor.phone.toLowerCase().includes(state.searchQuery);
-            if (!matchName && !matchUserId && !matchBlood && !matchRegion && !matchPhone) return false;
+            const matchPhone = donor.phone && donor.phone.toLowerCase().includes(state.searchQuery);
+            const matchHospital = donor.hospital && donor.hospital.toLowerCase().includes(state.searchQuery);
+            if (!matchName && !matchUserId && !matchBlood && !matchRegion && !matchPhone && !matchHospital) return false;
         }
 
         return true;
@@ -1189,6 +1342,10 @@ function renderDonorsCards(donorsList, containerId) {
                     <span>Distance: <strong>${donor.distanceKm} km away</strong></span>
                 </div>
                 <div class="detail-row">
+                    <i class="ri-hospital-line text-crimson"></i>
+                    <span>Hospital Hub: <strong>${donor.hospital || 'King George Hospital (KGH)'}</strong></span>
+                </div>
+                <div class="detail-row">
                     <i class="ri-history-line"></i>
                     <span>Total Donations: <strong>${donor.donationsCount} Pints</strong> (${donor.rating})</span>
                 </div>
@@ -1244,7 +1401,7 @@ function lookupAndSortByUser(userIdQuery) {
             userId: userIdQuery.toUpperCase(),
             name: `Registered Patient (${userIdQuery.toUpperCase()})`,
             bloodType: 'O-',
-            region: 'Central Metro',
+            region: 'Visakhapatnam',
             phone: '+1 (555) 019-9988',
             email: `${userIdQuery.toLowerCase()}@gmail.com`,
             avatar: MOCK_AVATARS[0],
@@ -1570,7 +1727,7 @@ function renderActivityFeed() {
 
     const initialActivities = [
         { icon: 'ri-chat-signal-line', text: '<strong>WebSocket Chat Room</strong> initiated with Elena Rostova (USR-1001)', time: 'Just now' },
-        { icon: 'ri-drop-line', text: '<strong>Dr. Sarah Jenkins</strong> updated blood profile to <strong>O-</strong> in Central Metro', time: 'Just now' },
+        { icon: 'ri-drop-line', text: '<strong>Dr. Sarah Jenkins</strong> updated blood profile to <strong>O-</strong> in Visakhapatnam', time: 'Just now' },
         { icon: 'ri-google-fill', text: '<strong>Dr. Sarah Jenkins</strong> authenticated via Google OAuth 2.0', time: '1 min ago' }
     ];
 
@@ -1638,27 +1795,45 @@ function setupModalEvents() {
 
     reqBloodGroup.addEventListener('change', updateModalMatches);
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const patientName = document.getElementById('req-patient-name').value;
         const group = reqBloodGroup.value;
         const hospital = document.getElementById('req-hospital').value;
+        const unitsNeeded = parseInt(document.getElementById('req-units')?.value || 2);
+        const district = document.getElementById('req-region')?.value || state.region || 'Visakhapatnam';
+        const urgency = document.getElementById('req-urgency')?.value || 'HIGH';
 
         closeModal();
+
+        try {
+            await BackendAPI.submitEmergencyRequest({
+                patientName,
+                bloodGroup: group,
+                unitsNeeded,
+                hospitalName: hospital,
+                district,
+                urgency
+            });
+        } catch (err) {
+            console.warn('[EmergencyRequest] Local fallback due to backend submission warning:', err);
+        }
 
         showToast(`Emergency broadcast sent for ${patientName} (${group}) to nearby donors!`, 'success');
 
         const feedContainer = document.getElementById('activity-feed-list');
-        const newItem = document.createElement('div');
-        newItem.className = 'feed-item';
-        newItem.innerHTML = `
-            <div class="feed-icon"><i class="ri-alarm-warning-fill"></i></div>
-            <div class="feed-text">
-                <div>Broadcasting <strong>${group}</strong> emergency for ${patientName} at <strong>${hospital}</strong></div>
-                <span class="feed-time">Just now</span>
-            </div>
-        `;
-        feedContainer.prepend(newItem);
+        if (feedContainer) {
+            const newItem = document.createElement('div');
+            newItem.className = 'feed-item';
+            newItem.innerHTML = `
+                <div class="feed-icon"><i class="ri-alarm-warning-fill"></i></div>
+                <div class="feed-text">
+                    <div>Broadcasting <strong>${group}</strong> emergency for ${patientName} at <strong>${hospital}</strong></div>
+                    <span class="feed-time">Just now</span>
+                </div>
+            `;
+            feedContainer.prepend(newItem);
+        }
 
         const urgentStat = document.getElementById('stat-urgent-requests');
         if (urgentStat) {
@@ -1749,4 +1924,447 @@ function showToast(message, type = 'success') {
         toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 300);
     }, 4000);
+}
+
+/* ==========================================================================
+   REAL USER AUTHENTICATION & MULTI-USER ISOLATION LOGIC
+   ========================================================================== */
+function switchAuthTab(tab) {
+    const loginForm = document.getElementById('real-login-form');
+    const regForm = document.getElementById('real-register-form');
+    const forgotForm = document.getElementById('real-forgot-form');
+
+    const tabLogin = document.getElementById('tab-btn-login');
+    const tabReg = document.getElementById('tab-btn-register');
+    const tabForgot = document.getElementById('tab-btn-forgot');
+
+    const modalTitle = document.getElementById('auth-modal-title');
+    const modalSub = document.getElementById('auth-modal-subtitle');
+
+    if (!loginForm || !regForm || !forgotForm) return;
+
+    loginForm.style.display = 'none';
+    regForm.style.display = 'none';
+    forgotForm.style.display = 'none';
+
+    tabLogin.classList.remove('active');
+    tabReg.classList.remove('active');
+    tabForgot.classList.remove('active');
+
+    if (tab === 'login') {
+        loginForm.style.display = 'block';
+        tabLogin.classList.add('active');
+        if (modalTitle) modalTitle.textContent = 'Real User Sign In';
+        if (modalSub) modalSub.textContent = 'Log in with your Email or Mobile Number';
+    } else if (tab === 'register') {
+        regForm.style.display = 'block';
+        tabReg.classList.add('active');
+        if (modalTitle) modalTitle.textContent = 'Register New Account';
+        if (modalSub) modalSub.textContent = 'Create your private blood donor account';
+    } else if (tab === 'forgot') {
+        forgotForm.style.display = 'block';
+        tabForgot.classList.add('active');
+        if (modalTitle) modalTitle.textContent = 'Account Recovery';
+        if (modalSub) modalSub.textContent = 'Issue a secure password reset token';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Real Login Form Submit Handler
+    const realLoginForm = document.getElementById('real-login-form');
+    const getAuthEndpointUrl = (path) => {
+        const base = (typeof window !== 'undefined' && window.location && window.location.origin && !window.location.origin.startsWith('file:'))
+            ? window.location.origin
+            : 'http://localhost:4000';
+        return `${base}${path}`;
+    };
+
+    if (realLoginForm) {
+        realLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loginId = document.getElementById('real-login-id').value.trim();
+            const password = document.getElementById('real-login-password').value;
+
+            try {
+                const res = await fetch(getAuthEndpointUrl('/api/auth/login'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ loginId, password })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    currentUser = {
+                        userId: data.data.user.id,
+                        name: data.data.user.name,
+                        email: data.data.user.email,
+                        phone: data.data.user.phone,
+                        role: data.data.user.role,
+                        bloodType: data.data.user.profile ? data.data.user.profile.bloodGroup : 'O+',
+                        region: data.data.user.profile ? data.data.user.profile.district : 'Visakhapatnam',
+                        city: data.data.user.profile ? data.data.user.profile.city : 'Visakhapatnam City',
+                        jwtToken: data.data.token,
+                        avatar: MOCK_AVATARS[0]
+                    };
+
+                    CacheManager.saveState();
+                    updateActiveUserPill();
+                    document.getElementById('login-modal').classList.remove('active');
+                    showToast(`Welcome back, ${currentUser.name}! You are logged into your account.`, 'success');
+                } else {
+                    showToast(data.message || 'Login failed. Please check credentials.', 'error');
+                }
+            } catch (err) {
+                showToast('Backend server connection error.', 'error');
+            }
+        });
+    }
+
+    // Real Register Form Submit Handler
+    const realRegisterForm = document.getElementById('real-register-form');
+    if (realRegisterForm) {
+        realRegisterForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const phone = document.getElementById('reg-phone').value;
+            const bloodGroup = document.getElementById('reg-blood').value;
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+            const district = document.getElementById('reg-district').value;
+            const city = document.getElementById('reg-city').value || district;
+
+            if (password !== confirmPassword) {
+                showToast('Passwords do not match.', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(getAuthEndpointUrl('/api/auth/register'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, bloodGroup, password, confirmPassword, district, city })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    currentUser = {
+                        userId: data.data.user.id,
+                        name: data.data.user.name,
+                        email: data.data.user.email,
+                        phone: data.data.user.phone,
+                        role: data.data.user.role,
+                        bloodType: bloodGroup,
+                        region: district,
+                        city: city,
+                        jwtToken: data.data.token,
+                        avatar: MOCK_AVATARS[1]
+                    };
+
+                    CacheManager.saveState();
+                    updateActiveUserPill();
+                    document.getElementById('login-modal').classList.remove('active');
+                    showToast(`Account created successfully! Welcome, ${name}.`, 'success');
+                } else {
+                    showToast(data.message || 'Registration failed.', 'error');
+                }
+            } catch (err) {
+                showToast('Backend server connection error.', 'error');
+            }
+        });
+    }
+
+    // Forgot Password Form Submit Handler
+    const realForgotForm = document.getElementById('real-forgot-form');
+    if (realForgotForm) {
+        realForgotForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email').value;
+
+            try {
+                const res = await fetch(getAuthEndpointUrl('/api/auth/forgot-password'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+
+                if (data.resetToken) {
+                    document.getElementById('reset-token-box').style.display = 'block';
+                    document.getElementById('reset-token-input').value = data.resetToken;
+                    showToast('Password reset token generated.', 'success');
+                } else {
+                    showToast(data.message, 'info');
+                }
+            } catch (err) {
+                showToast('Error issuing reset token.', 'error');
+            }
+        });
+    }
+
+    setupSearchBar();
+});
+
+async function submitPasswordReset() {
+    const resetToken = document.getElementById('reset-token-input').value;
+    const newPassword = document.getElementById('new-password-input').value;
+
+    if (!newPassword) {
+        showToast('Please enter a new password.', 'error');
+        return;
+    }
+
+    try {
+        const getAuthEndpointUrl = (path) => {
+            const base = (typeof window !== 'undefined' && window.location && window.location.origin && !window.location.origin.startsWith('file:'))
+                ? window.location.origin
+                : 'http://localhost:4000';
+            return `${base}${path}`;
+        };
+        const res = await fetch(getAuthEndpointUrl('/api/auth/reset-password'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ resetToken, newPassword })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Password reset successful! You can now log in.', 'success');
+            switchAuthTab('login');
+        } else {
+            showToast(data.message, 'error');
+        }
+    } catch (err) {
+        showToast('Failed to reset password.', 'error');
+    }
+}
+
+window.openContactDonorModal = function(donor) {
+    if (!donor) return;
+    const donorId = typeof donor === 'object' ? donor.id : donor;
+    if (typeof openContactModal === 'function') {
+        openContactModal(donorId);
+    }
+};
+
+/* ==========================================================================
+   RESPONSIVE LIVE SEARCH BAR IMPLEMENTATION (DEBOUNCED & BACKEND SYNC)
+   ========================================================================== */
+function setupSearchBar() {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const searchClearBtn = document.getElementById('searchInputClear');
+    const donorSearchInput = document.getElementById('donor-search-input');
+    const donorSearchClearBtn = document.getElementById('donorSearchInputClear');
+
+    if (!searchInput || !searchResults) return;
+
+    let debounceTimer;
+    let selectedIndex = -1;
+
+    // Navigable Dashboard Sections
+    const navPages = [
+        { title: 'Dashboard Home', sub: 'Real-time emergency blood search & metrics', tab: 'dashboard' },
+        { title: 'My Blood Details', sub: 'Edit personal medical profile & availability', tab: 'my-blood-details' },
+        { title: 'Find Donors Directory', sub: 'Search compatible donors by AP district', tab: 'donors' },
+        { title: 'Location Blood Stock', sub: 'View stock levels across AP districts', tab: 'location-finder' },
+        { title: 'ABO Matrix Compatibility', sub: 'Medical transfusion compatibility calculator', tab: 'compatibility' },
+        { title: 'Supply Radar Analytics', sub: 'Blood inventory stock radar', tab: 'analytics' },
+        { title: 'Google Form Sync', sub: 'Live donor registration & stock ledger', tab: 'google-form-sync' }
+    ];
+
+    function toggleClearBtn() {
+        if (searchClearBtn) {
+            searchClearBtn.style.display = searchInput.value.trim() ? 'flex' : 'none';
+        }
+    }
+
+    function highlightText(text, query) {
+        if (!text || !query) return text || '';
+        const escQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escQuery})`, 'gi');
+        return text.replace(regex, '<mark class="search-highlight">$1</mark>');
+    }
+
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        const rawValue = e.target.value;
+        const query = rawValue.trim().toLowerCase();
+        toggleClearBtn();
+
+        state.searchQuery = query;
+        if (donorSearchInput) donorSearchInput.value = rawValue;
+        if (donorSearchClearBtn) donorSearchClearBtn.style.display = rawValue ? 'flex' : 'none';
+        filterAndRenderDonors();
+
+        debounceTimer = setTimeout(() => {
+            if (!query) {
+                searchResults.classList.remove('active');
+                searchResults.innerHTML = '';
+                selectedIndex = -1;
+                return;
+            }
+
+            // 1. Search Nav Pages
+            const pageMatches = navPages.filter(p => p.title.toLowerCase().includes(query) || p.sub.toLowerCase().includes(query));
+
+            // 2. Search Donors
+            const donorMatches = DONORS_DATA.filter(d =>
+                d.name.toLowerCase().includes(query) ||
+                d.bloodType.toLowerCase() === query ||
+                d.bloodType.toLowerCase().includes(query) ||
+                d.userId.toLowerCase().includes(query) ||
+                d.region.toLowerCase().includes(query) ||
+                (d.phone && d.phone.toLowerCase().includes(query))
+            );
+
+            // 3. Search AP Govt Hospitals
+            const hospitalMatches = PARTNER_BANKS.filter(h =>
+                h.name.toLowerCase().includes(query) ||
+                h.region.toLowerCase().includes(query) ||
+                h.distance.toLowerCase().includes(query)
+            );
+
+            renderSearchResults(query, pageMatches, donorMatches, hospitalMatches);
+        }, 150);
+    });
+
+    if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            if (donorSearchInput) donorSearchInput.value = '';
+            if (donorSearchClearBtn) donorSearchClearBtn.style.display = 'none';
+            state.searchQuery = '';
+            toggleClearBtn();
+            searchResults.classList.remove('active');
+            searchResults.innerHTML = '';
+            selectedIndex = -1;
+            filterAndRenderDonors();
+        });
+    }
+
+    // Keyboard Navigation: ArrowUp, ArrowDown, Enter, Escape
+    searchInput.addEventListener('keydown', (e) => {
+        const items = searchResults.querySelectorAll('.search-result-item:not([style*="color"])');
+        
+        if (e.key === 'ArrowDown') {
+            if (!searchResults.classList.contains('active') || items.length === 0) return;
+            e.preventDefault();
+            selectedIndex = (selectedIndex + 1) % items.length;
+            updateSelectedItem(items);
+        } else if (e.key === 'ArrowUp') {
+            if (!searchResults.classList.contains('active') || items.length === 0) return;
+            e.preventDefault();
+            selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+            updateSelectedItem(items);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (searchResults.classList.contains('active') && selectedIndex >= 0 && items[selectedIndex]) {
+                items[selectedIndex].click();
+            } else {
+                // Submit search term directly & navigate to donor directory
+                searchResults.classList.remove('active');
+                if (typeof window.switchTab === 'function') {
+                    window.switchTab('donors');
+                }
+                const directoryEl = document.getElementById('tab-donors');
+                if (directoryEl) directoryEl.scrollIntoView({ behavior: 'smooth' });
+            }
+        } else if (e.key === 'Escape') {
+            searchResults.classList.remove('active');
+            selectedIndex = -1;
+            searchInput.blur();
+        }
+    });
+
+    function updateSelectedItem(items) {
+        items.forEach((item, idx) => {
+            if (idx === selectedIndex) {
+                item.classList.add('selected');
+                item.scrollIntoView({ block: 'nearest' });
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+    }
+
+    function renderSearchResults(query, pages, donors, hospitals) {
+        selectedIndex = -1;
+        if (pages.length === 0 && donors.length === 0 && hospitals.length === 0) {
+            searchResults.innerHTML = '<div class="search-result-item" style="color: var(--text-muted); cursor: default;">No matching donors, hospitals, or pages found</div>';
+            searchResults.classList.add('active');
+            return;
+        }
+
+        let html = '';
+
+        if (donors.length > 0) {
+            html += `<div class="search-category-header">🩸 Donors (${donors.length})</div>`;
+            html += donors.slice(0, 5).map(d => `
+                <div class="search-result-item" data-type="donor" data-id="${d.id}">
+                    <div>
+                        <div class="search-result-title">${highlightText(d.name, query)} <span class="search-badge tag-danger" style="font-size:0.7rem; padding: 0.1rem 0.3rem;">${highlightText(d.bloodType, query)}</span></div>
+                        <div class="search-result-sub">ID: ${highlightText(d.userId, query)} • ${highlightText(d.region, query)} • ${d.ready}</div>
+                    </div>
+                    <i class="ri-user-heart-line text-crimson"></i>
+                </div>
+            `).join('');
+        }
+
+        if (hospitals.length > 0) {
+            html += `<div class="search-category-header">🏥 AP Govt Hospitals & Blood Banks (${hospitals.length})</div>`;
+            html += hospitals.slice(0, 4).map(h => `
+                <div class="search-result-item" data-type="hospital" data-name="${h.name}">
+                    <div>
+                        <div class="search-result-title">${highlightText(h.name, query)}</div>
+                        <div class="search-result-sub">${highlightText(h.region, query)} (${h.distance}) • ${h.totalUnits} Units</div>
+                    </div>
+                    <i class="ri-hospital-line text-amber"></i>
+                </div>
+            `).join('');
+        }
+
+        if (pages.length > 0) {
+            html += `<div class="search-category-header">📌 Page Shortcuts</div>`;
+            html += pages.map(p => `
+                <div class="search-result-item" data-type="page" data-tab="${p.tab}">
+                    <div>
+                        <div class="search-result-title">${highlightText(p.title, query)}</div>
+                        <div class="search-result-sub">${highlightText(p.sub, query)}</div>
+                    </div>
+                    <i class="ri-arrow-right-s-line text-muted"></i>
+                </div>
+            `).join('');
+        }
+
+        searchResults.innerHTML = html;
+        searchResults.classList.add('active');
+    }
+
+    // Result Click Handling
+    searchResults.addEventListener('click', (e) => {
+        const item = e.target.closest('.search-result-item');
+        if (!item || item.style.color) return;
+
+        const type = item.dataset.type;
+        if (type === 'page') {
+            const tab = item.dataset.tab;
+            if (tab && typeof window.switchTab === 'function') window.switchTab(tab);
+        } else if (type === 'donor') {
+            const donorId = parseInt(item.dataset.id);
+            if (typeof window.openContactDonorModal === 'function') {
+                window.openContactDonorModal(donorId);
+            }
+        } else if (type === 'hospital') {
+            if (typeof window.switchTab === 'function') window.switchTab('banks');
+        }
+
+        searchResults.classList.remove('active');
+    });
+
+    // Close search dropdown on click outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-container')) {
+            searchResults.classList.remove('active');
+        }
+    });
 }

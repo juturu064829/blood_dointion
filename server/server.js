@@ -421,13 +421,18 @@ app.get('/api/v1/ledger', async (req, res, next) => {
 
 // Mount Full-Stack AP Location Engine and REST API Routers
 const authRoutes = require('../backend/src/routes/authRoutes');
+const userRoutes = require('../backend/src/routes/userRoutes');
 const donorRoutes = require('../backend/src/routes/donorRoutes');
 const requestRoutes = require('../backend/src/routes/requestRoutes');
 const notificationRoutes = require('../backend/src/routes/notificationRoutes');
 const adminRoutes = require('../backend/src/routes/adminRoutes');
 const locationRoutes = require('../backend/src/routes/locationRoutes');
 
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../')));
+
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/donors', donorRoutes);
 app.use('/api/blood-requests', requestRoutes);
 app.use('/api/notifications', notificationRoutes);
@@ -435,6 +440,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/locations', locationRoutes);
 
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/donors', donorRoutes);
 app.use('/api/v1/blood-requests', requestRoutes);
 app.use('/api/v1/notifications', notificationRoutes);

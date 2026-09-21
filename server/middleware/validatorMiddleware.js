@@ -4,7 +4,12 @@
    ========================================================================== */
 
 const VALID_BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-const VALID_REGIONS = ['Central Metro', 'North District', 'South Hub', 'East Coast', 'West Suburban'];
+const VALID_REGIONS = [
+    'Visakhapatnam', 'Krishna', 'Guntur', 'Tirupati', 'Kurnool', 'Nandyal', 'Nellore', 'Kakinada', 
+    'East Godavari', 'Konaseema', 'YSR Kadapa', 'Annamayya', 'Chittoor', 'Sri Sathya Sai', 'Anantapur', 
+    'Prakasam', 'Bapatla', 'Palnadu', 'Eluru', 'West Godavari', 'Vizianagaram', 'Srikakulam', 
+    'Parvathipuram', 'ASR District', 'NTR District', 'Anakapalli', 'Central Metro', 'North District', 'South Hub'
+];
 const VALID_READY_STATUS = ['Immediate', 'Today', '24 Hours', 'Unavailable'];
 
 /**

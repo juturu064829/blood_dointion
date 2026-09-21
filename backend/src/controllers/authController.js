@@ -1,6 +1,5 @@
 /* ==========================================================================
-   PULSERED - Authentication Controller
-   Endpoints: POST /api/auth/register, POST /api/auth/login, GET /api/auth/me, POST /api/auth/logout
+   PULSERED - Production Auth & User Account Controller
    ========================================================================== */
 
 const authService = require('../services/authService');
@@ -16,7 +15,7 @@ async function register(req, res, next) {
         });
         res.status(201).json({
             success: true,
-            message: 'User registered successfully.',
+            message: 'Account registered and profile created successfully.',
             data: result
         });
     } catch (err) {
@@ -35,7 +34,7 @@ async function login(req, res, next) {
         });
         res.json({
             success: true,
-            message: 'Login successful.',
+            message: 'Logged in successfully.',
             data: result
         });
     } catch (err) {
@@ -55,6 +54,19 @@ async function getMe(req, res, next) {
     }
 }
 
+async function updateMe(req, res, next) {
+    try {
+        const updatedUser = await authService.updateUserProfile(req.user.id, req.body);
+        res.json({
+            success: true,
+            message: 'Profile updated successfully.',
+            user: updatedUser
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 async function logout(req, res, next) {
     try {
         res.clearCookie('accessToken');
@@ -67,9 +79,34 @@ async function logout(req, res, next) {
     }
 }
 
+async function forgotPassword(req, res, next) {
+    try {
+        const { email } = req.body;
+        if (!email) throw { statusCode: 400, message: 'Email is required.' };
+        const result = await authService.forgotPassword(email);
+        res.json({ success: true, ...result });
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function resetPassword(req, res, next) {
+    try {
+        const { resetToken, newPassword } = req.body;
+        if (!resetToken || !newPassword) throw { statusCode: 400, message: 'Reset token and new password are required.' };
+        const result = await authService.resetPassword(resetToken, newPassword);
+        res.json({ success: true, ...result });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     register,
     login,
     getMe,
-    logout
+    updateMe,
+    logout,
+    forgotPassword,
+    resetPassword
 };

@@ -1,15 +1,19 @@
 /* ==========================================================================
-   PULSERED - Blood Request Routes
+   PULSERED - Blood Request Routes with RBAC Security
    ========================================================================== */
 
 const express = require('express');
 const router = express.Router();
 const requestController = require('../controllers/requestController');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { authenticateToken, optionalAuth, authorizeRoles } = require('../middleware/authMiddleware');
 
-router.post('/', requestController.createRequest);
 router.get('/', requestController.getRequests);
 router.get('/:id', requestController.getRequestById);
-router.put('/:id', requestController.updateRequestStatus);
+
+// Registered and guest users can submit blood requests
+router.post('/', optionalAuth, requestController.createRequest);
+
+// Only ADMIN users can update/approve request statuses
+router.put('/:id', authenticateToken, authorizeRoles('ADMIN'), requestController.updateRequestStatus);
 
 module.exports = router;

@@ -55,12 +55,12 @@ class DonorService {
             allDonors = allDonors.filter(d => compatibleGroups.includes(d.bloodGroup.toUpperCase()));
         }
 
-        if (state) {
-            allDonors = allDonors.filter(d => d.state.toLowerCase() === state.toLowerCase());
+        if (state && state.toLowerCase() !== 'all') {
+            allDonors = allDonors.filter(d => d.state && d.state.toLowerCase() === state.toLowerCase());
         }
 
-        if (district) {
-            allDonors = allDonors.filter(d => d.district.toLowerCase() === district.toLowerCase());
+        if (district && district.toLowerCase() !== 'all') {
+            allDonors = allDonors.filter(d => d.district && d.district.toLowerCase() === district.toLowerCase());
         }
 
         if (city) {

@@ -1,8 +1,8 @@
 /* ==========================================================================
-   PULSERED - Andhra Pradesh Location Controller
+   PULSERED - Andhra Pradesh Location & Government Hospital Controller
    ========================================================================== */
 
-const { AP_DISTRICTS, getDistricts, getCitiesByDistrict, getAllLocationsFlat } = require('../utils/apLocations');
+const { AP_DISTRICTS, AP_GOVT_HOSPITALS, getDistricts, getCitiesByDistrict, getGovtHospitals, getAllLocationsFlat } = require('../utils/apLocations');
 
 async function getAPDistricts(req, res, next) {
     try {
@@ -36,7 +36,24 @@ async function getCities(req, res, next) {
     }
 }
 
+async function getGovtHospitalsController(req, res, next) {
+    try {
+        const { district } = req.query;
+        const hospitals = getGovtHospitals(district);
+        res.json({
+            success: true,
+            state: 'Andhra Pradesh',
+            district: district || 'All Districts',
+            totalHospitals: hospitals.length,
+            hospitals
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     getAPDistricts,
-    getCities
+    getCities,
+    getGovtHospitalsController
 };
