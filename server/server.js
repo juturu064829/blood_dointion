@@ -6,6 +6,7 @@
 
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -24,6 +25,9 @@ const PORT = process.env.PORT || 4000;
 
 // Disable x-powered-by header for security
 app.disable('x-powered-by');
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '..')));
 
 /* ==========================================================================
    1. HARDENED SECURITY & MIDDLEWARE
@@ -427,10 +431,6 @@ const requestRoutes = require('../backend/src/routes/requestRoutes');
 const notificationRoutes = require('../backend/src/routes/notificationRoutes');
 const adminRoutes = require('../backend/src/routes/adminRoutes');
 const locationRoutes = require('../backend/src/routes/locationRoutes');
-
-const path = require('path');
-app.use(express.static(path.join(__dirname, '../')));
-
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/donors', donorRoutes);

@@ -18,6 +18,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.blooddonation.exception.ResourceNotFoundException;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Service
 public class AuthService {
 
@@ -32,6 +38,18 @@ public class AuthService {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    private static final Map<String, ResetTokenRecord> resetTokens = new ConcurrentHashMap<>();
+
+    private static class ResetTokenRecord {
+        final String email;
+        final long expiresAt;
+
+        ResetTokenRecord(String email, long expiresAt) {
+            this.email = email;
+            this.expiresAt = expiresAt;
+        }
+    }
 
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -78,4 +96,49 @@ public class AuthService {
                 .role(savedUser.getRole().name())
                 .build();
     }
+
+    public Map<String, String> forgotPassword(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new BadRequestException("Email address is required");
+        }
+        String normalizedEmail = email.toLowerCase().trim();
+
+        // Create reset token
+        String resetToken = "rst_" + UUID.randomUUID().toString().replace("-", "");
+        resetTokens.put(resetToken, new ResetTokenRecord(normalizedEmail, System.currentTimeMillis() + 3600000));
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Password reset token generated successfully.");
+        response.put("resetToken", resetToken);
+        return response;
+    }
+
+    public Map<String, String> resetPassword(String resetToken, String newPassword) {
+        if (resetToken == null || resetToken.trim().isEmpty()) {
+            throw new BadRequestException("Reset token is required");
+        }
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new BadRequestException("New password is required");
+        }
+
+        ResetTokenRecord record = resetTokens.get(resetToken);
+        if (record == null || record.expiresAt < System.currentTimeMillis()) {
+            throw new BadRequestException("Invalid or expired password reset token.");
+        }
+
+        User user = userRepository.findByEmail(record.email)
+                .orElse(null);
+
+        if (user != null) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+        }
+
+        resetTokens.remove(resetToken);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Password reset successful! You can now log in with your new password.");
+        return response;
+    }
 }
+
