@@ -48,22 +48,8 @@ app.use(helmet({
 }));
 
 // 1.2 Strict CORS Configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:8080', 'http://127.0.0.1:8080', 'http://localhost:3000', 'http://localhost:5500', 'http://127.0.0.1:5500'];
-
-app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
-            callback(null, true);
-        } else {
-            callback(new Error('CORS policy security violation: Origin not allowed'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+const { corsOptionsDelegate } = require('../backend/src/config/corsConfig');
+app.use(cors(corsOptionsDelegate));
 
 // 1.3 Request Body Size Limits (Prevent DoS Attacks)
 app.use(express.json({ limit: '10kb' }));

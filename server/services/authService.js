@@ -5,10 +5,7 @@
 
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'pulsered_super_secret_jwt_key_998877665544332211';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'pulsered_refresh_secret_key_112233445566778899';
-const ACCESS_TOKEN_EXPIRY = '15m';
+const { JWT_SECRET, JWT_REFRESH_SECRET, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES } = require('../config/jwtConfig');
 const REFRESH_TOKEN_EXPIRY_DAYS = 7;
 
 class AuthService {
@@ -30,9 +27,11 @@ class AuthService {
             role: user.role || 'donor'
         };
 
+        const expiryMinutes = (process.env.ACCESS_TOKEN_EXPIRE_MINUTES ? parseInt(process.env.ACCESS_TOKEN_EXPIRE_MINUTES, 10) : ACCESS_TOKEN_EXPIRE_MINUTES) || 60;
+
         return jwt.sign(payload, JWT_SECRET, { 
-            expiresIn: ACCESS_TOKEN_EXPIRY,
-            algorithm: 'HS256'
+            expiresIn: `${expiryMinutes}m`,
+            algorithm: JWT_ALGORITHM
         });
     }
 
@@ -51,7 +50,7 @@ class AuthService {
 
         const token = jwt.sign(payload, JWT_REFRESH_SECRET, { 
             expiresIn: `${REFRESH_TOKEN_EXPIRY_DAYS}d`,
-            algorithm: 'HS256'
+            algorithm: JWT_ALGORITHM
         });
 
         this.redisMock.set(`session:${token}`, {
@@ -71,7 +70,7 @@ class AuthService {
         if (this.blacklistedJwt.has(token)) {
             throw new Error('Token has been revoked');
         }
-        return jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
+        return jwt.verify(token, JWT_SECRET, { algorithms: [JWT_ALGORITHM] });
     }
 
     /**
@@ -85,7 +84,7 @@ class AuthService {
         if (!session) {
             throw new Error('Invalid or expired refresh token session');
         }
-        return jwt.verify(refreshToken, JWT_REFRESH_SECRET, { algorithms: ['HS256'] });
+        return jwt.verify(refreshToken, JWT_REFRESH_SECRET, { algorithms: [JWT_ALGORITHM] });
     }
 
     /**

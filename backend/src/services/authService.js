@@ -3,8 +3,11 @@
    ========================================================================== */
 
 const crypto = require('crypto');
+const { JWT_SECRET, JWT_REFRESH_SECRET, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS } = require('../config/jwtConfig');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'pulsered_super_secret_jwt_key_998877665544332211';
+// In-Memory Refresh Token Session Store (Supports Family ID Rotation & Revocation)
+const refreshSessions = new Map();
+const familyRevocations = new Set();
 
 // Native Crypto JWT Implementation
 function base64UrlEncode(str) {
@@ -17,10 +20,28 @@ function base64UrlDecode(str) {
     return Buffer.from(base64, 'base64').toString('utf8');
 }
 
-function signJwt(payload, secret = JWT_SECRET) {
-    const header = { alg: 'HS256', typ: 'JWT' };
+function signJwt(payload, secret = JWT_SECRET, expireMinutes = null) {
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const minutes = expireMinutes || (process.env.ACCESS_TOKEN_EXPIRE_MINUTES ? parseInt(process.env.ACCESS_TOKEN_EXPIRE_MINUTES, 10) : ACCESS_TOKEN_EXPIRE_MINUTES) || 60;
+    const expSeconds = nowSeconds + (minutes * 60);
+
+    const userId = payload.sub || payload.user_id || payload.id;
+
+    // Standardized claims schema (sub, user_id, iat, exp) - No passwords or sensitive PII stored
+    const finalPayload = {
+        sub: userId,
+        user_id: userId,
+        id: userId,
+        email: payload.email,
+        name: payload.name,
+        role: payload.role || 'DONOR',
+        iat: nowSeconds,
+        exp: expSeconds
+    };
+
+    const header = { alg: JWT_ALGORITHM, typ: 'JWT' };
     const encodedHeader = base64UrlEncode(JSON.stringify(header));
-    const encodedPayload = base64UrlEncode(JSON.stringify({ ...payload, exp: Math.floor(Date.now() / 1000) + (7 * 24 * 3600) }));
+    const encodedPayload = base64UrlEncode(JSON.stringify(finalPayload));
     
     const signature = crypto
         .createHmac('sha256', secret)
@@ -30,12 +51,70 @@ function signJwt(payload, secret = JWT_SECRET) {
     return `${encodedHeader}.${encodedPayload}.${signature}`;
 }
 
+function signRefreshToken(payload, secret = JWT_REFRESH_SECRET, expireDays = REFRESH_TOKEN_EXPIRE_DAYS) {
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const days = (process.env.REFRESH_TOKEN_EXPIRE_DAYS ? parseInt(process.env.REFRESH_TOKEN_EXPIRE_DAYS, 10) : expireDays) || 7;
+    const expSeconds = nowSeconds + (days * 24 * 60 * 60);
+
+    const userId = payload.sub || payload.user_id || payload.id;
+    const familyId = payload.familyId || `fam-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+    const jti = payload.jti || `jti-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+
+    const finalPayload = {
+        sub: userId,
+        user_id: userId,
+        familyId,
+        jti,
+        type: 'refresh',
+        iat: nowSeconds,
+        exp: expSeconds
+    };
+
+    const header = { alg: JWT_ALGORITHM, typ: 'JWT' };
+    const encodedHeader = base64UrlEncode(JSON.stringify(header));
+    const encodedPayload = base64UrlEncode(JSON.stringify(finalPayload));
+    
+    const signature = crypto
+        .createHmac('sha256', secret)
+        .update(`${encodedHeader}.${encodedPayload}`)
+        .digest('base64url');
+
+    const token = `${encodedHeader}.${encodedPayload}.${signature}`;
+
+    refreshSessions.set(jti, {
+        userId,
+        familyId,
+        isUsed: false,
+        isRevoked: false,
+        expiresAt: expSeconds * 1000
+    });
+
+    return { token, familyId, jti };
+}
+
 function verifyJwt(token, secret = JWT_SECRET) {
     if (!token || typeof token !== 'string') throw new Error('Token required');
     const parts = token.split('.');
     if (parts.length !== 3) throw new Error('Invalid token structure');
 
     const [header, payload, signature] = parts;
+
+    // Explicit Algorithm Verification
+    let decodedHeader;
+    try {
+        decodedHeader = JSON.parse(base64UrlDecode(header));
+    } catch (e) {
+        throw new Error('Invalid token header format');
+    }
+
+    if (!decodedHeader || !decodedHeader.alg) {
+        throw new Error('Missing algorithm in token header');
+    }
+
+    if (decodedHeader.alg !== JWT_ALGORITHM) {
+        throw new Error(`Algorithm mismatch: Expected ${JWT_ALGORITHM}, received ${decodedHeader.alg}`);
+    }
+
     const expectedSig = crypto
         .createHmac('sha256', secret)
         .update(`${header}.${payload}`)
@@ -49,10 +128,52 @@ function verifyJwt(token, secret = JWT_SECRET) {
     }
     const decoded = JSON.parse(base64UrlDecode(payload));
 
-    if (decoded.exp && Math.floor(Date.now() / 1000) > decoded.exp) {
+    if (!decoded.sub && !decoded.user_id && !decoded.id) {
+        throw new Error('Token subject identification missing');
+    }
+
+    if (!decoded.iat || typeof decoded.iat !== 'number') {
+        throw new Error('Token issued-at (iat) claim missing');
+    }
+
+    if (!decoded.exp || typeof decoded.exp !== 'number') {
+        throw new Error('Token expiration claim missing');
+    }
+
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    if (currentTimestamp >= decoded.exp) {
         throw new Error('Token expired');
     }
+
+    const userId = decoded.user_id || decoded.sub || decoded.id;
+    decoded.sub = userId;
+    decoded.user_id = userId;
+    decoded.id = userId;
+
     return decoded;
+}
+
+function verifyRefreshToken(token, secret = JWT_REFRESH_SECRET) {
+    const decoded = verifyJwt(token, secret);
+    if (decoded.type !== 'refresh') {
+        throw new Error('Invalid token type. Expected refresh token.');
+    }
+
+    if (familyRevocations.has(decoded.familyId)) {
+        throw new Error('Refresh token family revoked due to reuse detection');
+    }
+
+    const session = refreshSessions.get(decoded.jti);
+    if (!session || session.isRevoked) {
+        throw new Error('Refresh token session revoked or invalid');
+    }
+
+    if (session.isUsed) {
+        familyRevocations.add(decoded.familyId);
+        throw new Error('Refresh token reuse detected. Revoking all sessions for family.');
+    }
+
+    return { decoded, session };
 }
 
 // Hardened Password Hashing (210,000 PBKDF2-HMAC-SHA512 Iterations)
@@ -163,9 +284,12 @@ class AuthService {
         inMemoryProfiles.set(userId, profileObj);
 
         const token = this.generateToken(userObj);
+        const refreshTokenRes = this.generateRefreshToken(userObj);
         return {
             user: this.sanitizeUser({ ...userObj, profile: profileObj }),
-            token
+            token,
+            accessToken: token,
+            refreshToken: refreshTokenRes.token
         };
     }
 
@@ -199,11 +323,14 @@ class AuthService {
         }
 
         const token = this.generateToken(user);
+        const refreshTokenRes = this.generateRefreshToken(user);
         const profile = inMemoryProfiles.get(user.id) || null;
 
         return {
             user: this.sanitizeUser({ ...user, profile }),
-            token
+            token,
+            accessToken: token,
+            refreshToken: refreshTokenRes.token
         };
     }
 
@@ -313,6 +440,71 @@ class AuthService {
         });
     }
 
+    generateRefreshToken(user, familyId = null) {
+        return signRefreshToken({
+            sub: user.id,
+            user_id: user.id,
+            familyId
+        });
+    }
+
+    async rotateRefreshToken(refreshTokenString) {
+        if (!refreshTokenString) {
+            throw { statusCode: 401, message: 'Refresh token is required.' };
+        }
+
+        let verified;
+        try {
+            verified = verifyRefreshToken(refreshTokenString);
+        } catch (err) {
+            throw { statusCode: 401, message: err.message || 'Invalid or expired refresh token.' };
+        }
+
+        const { decoded, session } = verified;
+        
+        // Mark current refresh token session as used
+        session.isUsed = true;
+
+        // Retrieve current active user
+        const user = await this.getUserById(decoded.sub || decoded.user_id);
+        if (!user) {
+            throw { statusCode: 401, message: 'User account associated with refresh token no longer exists.' };
+        }
+
+        // Generate new access token and rotated refresh token under the SAME familyId
+        const newAccessToken = this.generateToken(user);
+        const newRefreshToken = this.generateRefreshToken(user, decoded.familyId);
+
+        return {
+            user,
+            token: newAccessToken,
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken.token
+        };
+    }
+
+    async revokeRefreshToken(refreshTokenString) {
+        if (!refreshTokenString) return;
+        try {
+            const parts = refreshTokenString.split('.');
+            if (parts.length === 3) {
+                const payloadStr = base64UrlDecode(parts[1]);
+                const payload = JSON.parse(payloadStr);
+                if (payload.jti) {
+                    const session = refreshSessions.get(payload.jti);
+                    if (session) {
+                        session.isRevoked = true;
+                    }
+                }
+                if (payload.familyId) {
+                    familyRevocations.add(payload.familyId);
+                }
+            }
+        } catch (e) {
+            // Ignore decoding errors during logout revocation
+        }
+    }
+
     sanitizeUser(user) {
         const { passwordHash, ...sanitized } = user;
         return sanitized;
@@ -326,3 +518,7 @@ module.exports.hashPassword = hashPassword;
 module.exports.verifyPassword = verifyPassword;
 module.exports.signJwt = signJwt;
 module.exports.verifyJwt = verifyJwt;
+module.exports.signRefreshToken = signRefreshToken;
+module.exports.verifyRefreshToken = verifyRefreshToken;
+module.exports.refreshSessions = refreshSessions;
+module.exports.familyRevocations = familyRevocations;

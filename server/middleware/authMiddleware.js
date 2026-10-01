@@ -9,17 +9,24 @@ const authService = require('../services/authService');
  * Middleware to authenticate requests using JWT Bearer tokens
  */
 function authenticateJWT(req, res, next) {
-    const authHeader = req.headers.authorization;
+    const authHeader = req.headers.authorization || req.headers.Authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({
             success: false,
-            error: 'Authentication failed',
-            message: 'Access token missing or invalid format in Authorization header'
+            error: 'Unauthorized',
+            message: 'Access token missing or invalid format in Authorization header. Expected format: Authorization: Bearer <access_token>'
         });
     }
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.substring(7).trim();
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            error: 'Unauthorized',
+            message: 'Bearer access token is empty in Authorization header'
+        });
+    }
 
     try {
         const decoded = authService.verifyAccessToken(token);

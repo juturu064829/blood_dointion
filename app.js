@@ -126,20 +126,166 @@ const BackendAPI = {
     BASE_URL: getApiBaseUrl(),
     isOnline: false,
 
+    getToken() {
+        if (currentUser && currentUser.jwtToken && currentUser.jwtToken !== 'simulated_jwt' && currentUser.jwtToken !== 'mock-local-jwt-token') {
+            return currentUser.jwtToken;
+        }
+        if (currentUser && (currentUser.accessToken || currentUser.token)) {
+            return currentUser.accessToken || currentUser.token;
+        }
+        if (typeof localStorage !== 'undefined') {
+            return localStorage.getItem('accessToken') || localStorage.getItem('token') || localStorage.getItem('jwtToken') || null;
+        }
+        return null;
+    },
+
+    setToken(token) {
+        if (!token) return;
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('accessToken', token);
+        }
+        if (currentUser) {
+            currentUser.jwtToken = token;
+            currentUser.accessToken = token;
+            currentUser.token = token;
+        }
+    },
+
+    clearToken() {
+        if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('token');
+            localStorage.removeItem('jwtToken');
+        }
+        if (currentUser) {
+            delete currentUser.jwtToken;
+            delete currentUser.accessToken;
+            delete currentUser.token;
+        }
+    },
+
     getHeaders() {
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         };
-        if (currentUser && currentUser.jwtToken && currentUser.jwtToken !== 'simulated_jwt') {
-            headers['Authorization'] = `Bearer ${currentUser.jwtToken}`;
+        const token = this.getToken();
+        if (token && token !== 'simulated_jwt' && token !== 'mock-local-jwt-token') {
+            headers['Authorization'] = `Bearer ${token}`;
         }
         return headers;
     },
 
+    handleUnauthorizedResponse(res) {
+        if (res && res.status === 401) {
+            console.warn('[BackendAPI] Received 401 Unauthorized response. Invalid or expired session.');
+            this.clearToken();
+            if (typeof showToast === 'function') {
+                showToast('Your session has expired. Please log in again.', 'warning');
+            }
+            if (typeof updateActiveUserPill === 'function') {
+                updateActiveUserPill();
+            }
+        }
+    },
+
+    isRefreshing: false,
+
+    async refreshAccessToken() {
+        if (this.isRefreshing) return false;
+        this.isRefreshing = true;
+        try {
+            const res = await fetch(`${this.BASE_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                credentials: 'include'
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success && (data.accessToken || data.token)) {
+                    this.setToken(data.accessToken || data.token);
+                    this.isRefreshing = false;
+                    return true;
+                }
+            }
+        } catch (e) {
+            console.warn('[BackendAPI] Token refresh attempt failed:', e.message);
+        }
+        this.isRefreshing = false;
+        return false;
+    },
+
+    async fetchWithAuth(url, options = {}) {
+        const reqHeaders = {
+            ...this.getHeaders(),
+            ...(options.headers || {})
+        };
+        const reqOptions = {
+            credentials: 'include', // Automatically include HttpOnly cookies if present
+            ...options,
+            headers: reqHeaders
+        };
+        let res = await fetch(url, reqOptions);
+
+        const isAuthEndpoint = url.includes('/auth/refresh') || url.includes('/auth/login') || url.includes('/auth/register');
+
+        if (res && res.status === 401 && !isAuthEndpoint && !this.isRefreshing) {
+            console.warn('[BackendAPI] Access token expired (401). Attempting automatic refresh...');
+            const refreshed = await this.refreshAccessToken();
+            if (refreshed) {
+                const retryHeaders = {
+                    ...this.getHeaders(),
+                    ...(options.headers || {})
+                };
+                res = await fetch(url, {
+                    ...reqOptions,
+                    headers: retryHeaders
+                });
+            }
+        }
+
+        this.handleUnauthorizedResponse(res);
+        return res;
+    },
+
+    async syncSession() {
+        try {
+            const token = this.getToken();
+            if (!token || token === 'simulated_jwt' || token === 'mock-local-jwt-token') return null;
+
+            const res = await this.fetchWithAuth(`${this.BASE_URL}/auth/me`, { method: 'GET' });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.success && data.user) {
+                    const u = data.user;
+                    currentUser = {
+                        ...currentUser,
+                        userId: u.id || currentUser.userId,
+                        name: u.name || currentUser.name,
+                        email: u.email || currentUser.email,
+                        phone: u.phone || currentUser.phone,
+                        role: u.role || currentUser.role,
+                        bloodType: u.profile ? u.profile.bloodGroup : currentUser.bloodType,
+                        region: u.profile ? u.profile.district : currentUser.region,
+                        city: u.profile ? u.profile.city : currentUser.city
+                    };
+                    if (typeof CacheManager !== 'undefined') CacheManager.saveState();
+                    if (typeof updateActiveUserPill === 'function') updateActiveUserPill();
+                    return data.user;
+                }
+            }
+        } catch (e) {
+            console.warn('[BackendAPI] Session sync check completed:', e.message);
+        }
+        return null;
+    },
+
     async checkHealth() {
         try {
-            const res = await fetch(`${this.BASE_URL}/health`, { method: 'GET', headers: this.getHeaders() });
+            const res = await this.fetchWithAuth(`${this.BASE_URL}/health`, { method: 'GET' });
             if (res.ok) {
                 const data = await res.json();
                 this.isOnline = true;
@@ -159,9 +305,8 @@ const BackendAPI = {
             if (bloodType) params.append('bloodGroup', bloodType);
             if (region && region !== 'all') params.append('district', region);
 
-            const res = await fetch(`${this.BASE_URL}/donors/search?${params.toString()}`, {
-                method: 'GET',
-                headers: this.getHeaders()
+            const res = await this.fetchWithAuth(`${this.BASE_URL}/donors/search?${params.toString()}`, {
+                method: 'GET'
             });
             if (res.ok) {
                 const result = await res.json();
@@ -178,13 +323,15 @@ const BackendAPI = {
 
     async registerDonor(donorData) {
         try {
-            const res = await fetch(`${this.BASE_URL}/auth/register`, {
+            const res = await this.fetchWithAuth(`${this.BASE_URL}/auth/register`, {
                 method: 'POST',
-                headers: this.getHeaders(),
                 body: JSON.stringify(donorData)
             });
             const data = await res.json();
             if (res.ok && data.success) {
+                if (data.token || data.accessToken) {
+                    this.setToken(data.accessToken || data.token);
+                }
                 return data;
             }
             throw new Error(data.message || 'Failed to register donor in database');
@@ -196,9 +343,8 @@ const BackendAPI = {
 
     async submitEmergencyRequest(reqData) {
         try {
-            const res = await fetch(`${this.BASE_URL}/blood-requests`, {
+            const res = await this.fetchWithAuth(`${this.BASE_URL}/blood-requests`, {
                 method: 'POST',
-                headers: this.getHeaders(),
                 body: JSON.stringify(reqData)
             });
             const data = await res.json();
@@ -214,7 +360,7 @@ const BackendAPI = {
 
     async fetchAdminStats() {
         try {
-            const res = await fetch(`${this.BASE_URL}/admin/stats`, { method: 'GET', headers: this.getHeaders() });
+            const res = await this.fetchWithAuth(`${this.BASE_URL}/admin/stats`, { method: 'GET' });
             if (res.ok) {
                 const data = await res.json();
                 return data.stats;
@@ -462,6 +608,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initApp() {
     const loadedCache = CacheManager.loadState();
+
+    BackendAPI.syncSession();
 
     setupNavigation();
     setupFilters();

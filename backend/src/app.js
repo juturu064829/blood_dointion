@@ -22,20 +22,16 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const locationRoutes = require('./routes/locationRoutes');
 
+const { corsOptionsDelegate, fallbackCorsMiddleware } = require('./config/corsConfig');
+
 const app = express();
 
 // Security Middlewares
 if (helmet) app.use(helmet({ contentSecurityPolicy: false }));
 if (cors) {
-    app.use(cors({ origin: true, credentials: true }));
+    app.use(cors(corsOptionsDelegate));
 } else {
-    app.use((req, res, next) => {
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-        if (req.method === 'OPTIONS') return res.sendStatus(200);
-        next();
-    });
+    app.use(fallbackCorsMiddleware);
 }
 app.use(express.json());
 
